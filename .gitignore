@@ -1,0 +1,29 @@
+#folders
+.vs/
+build/
+out/
+
+#cmake
+CMakeSettings.json
+
+# VS
+*.VC.db
+*.vcxproject
+*.vcxproject.filters
+*.vcxproject.user
+
+# python Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C++ objects and libs
+*.slo
+*.lo
+*.la
+*.lai
+*.dylib
+*.exe
+*.ilk
+*.pdb
+*.ini
