@@ -1,9 +1,25 @@
 #include <Hazel.h>
 
+class ExampleLayer : public Hazel::Layer
+{
+public:
+	ExampleLayer() : Layer("Example") {}
+	
+	void onUpdate() override {
+		HZ_INFO("ExampleLayer::update");
+	}
+
+	void onEvent(Hazel::Event& e) override {
+		HZ_INFO("ExampleLayer::event");
+	}
+};
+
 class Sandbox : public Hazel::Application
 {
 public:
-	Sandbox(){}
+	Sandbox(){
+		pushLayer(new ExampleLayer());
+	}
 	~Sandbox(){}
 };
 

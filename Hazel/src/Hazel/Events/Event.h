@@ -58,11 +58,7 @@ namespace Hazel {
 			return getCategoryFlags() & static_cast<int>(category);
 		}
 
-	protected:
-		bool m_handled = false;
-
-	private:
-		friend class EventDispatcher;
+		bool isHandled = false;
 	};
 
 	class EventDispatcher
@@ -82,7 +78,7 @@ namespace Hazel {
 			if (m_event.getEventType() != T::getStaticType()) {
 				return false;
 			}
-			m_event.m_handled = func(*(T*)&m_event);
+			m_event.isHandled = func(*(T*)&m_event);
 			return true;
 		}
 
