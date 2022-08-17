@@ -167,4 +167,8 @@ namespace Hazel {
 	{
 		return m_data.vsync;
 	}
+	void* WindowsWindow::getNativeWindow() const
+	{
+		return m_window;
+	}
 }
