@@ -6,11 +6,11 @@ public:
 	ExampleLayer() : Layer("Example") {}
 	
 	void onUpdate() override {
-		HZ_INFO("ExampleLayer::update");
+		//HZ_INFO("ExampleLayer::update");
 	}
 
 	void onEvent(Hazel::Event& e) override {
-		HZ_INFO("ExampleLayer::event");
+		HZ_INFO("ExampleLayer::event {}", e.toString());
 	}
 };
 
