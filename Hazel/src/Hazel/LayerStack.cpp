@@ -2,7 +2,7 @@
 
 namespace Hazel {
 	LayerStack::LayerStack()
-		: m_itLayerInsert(m_layers.begin())
+		: m_layerInsertIndex(0)
 	{
 	}
 
@@ -14,7 +14,8 @@ namespace Hazel {
 	}
 	void LayerStack::pushLayer(Layer* layer)
 	{
-		m_itLayerInsert = m_layers.emplace(m_itLayerInsert, layer);
+		m_layers.emplace(m_layers.begin() + m_layerInsertIndex, layer);
+		m_layerInsertIndex++;
 	}
 
 	void LayerStack::pushOverlay(Layer* overlay)
@@ -27,7 +28,7 @@ namespace Hazel {
 		auto it = std::find(m_layers.begin(), m_layers.end(), layer);
 		if (it != m_layers.end()) {
 			m_layers.erase(it);
-			m_itLayerInsert--;
+			m_layerInsertIndex--;
 		}
 	}
 

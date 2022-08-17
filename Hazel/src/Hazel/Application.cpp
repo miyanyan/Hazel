@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 
 #include "Log.h"
+#include "Hazel/ImGui/ImGuiLayer.h"
 #ifdef _WIN32
 #include "Platform/Windows/WindowsWindow.h"
 #else
@@ -18,6 +19,9 @@ namespace Hazel {
 		m_window = std::make_unique<WindowsWindow>();
 		Window::EventCallbackFn fn = [this](Event& e) {onEvent(e); };
 		m_window->setEventCallback(fn);
+
+		m_imguiLayer = new ImGuiLayer();
+		pushOverlay(m_imguiLayer);
 	}
 
 	Application::~Application()
@@ -32,6 +36,13 @@ namespace Hazel {
 			for (auto layer : m_layerStack) {
 				layer->onUpdate();
 			}
+
+			m_imguiLayer->begin();
+			for (auto layer : m_layerStack) {
+				layer->onImGuiRender();
+			}
+			m_imguiLayer->end();
+
 			m_window->onUpdate();
 		}
 	}

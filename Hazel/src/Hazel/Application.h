@@ -7,6 +7,7 @@
 #include "Hazel/Window.h"
 
 namespace Hazel {
+	class ImGuiLayer;
 	class HAZEL_API Application
 	{
 	public:
@@ -29,6 +30,7 @@ namespace Hazel {
 		std::unique_ptr<Window> m_window;
 		bool m_running = true;
 		LayerStack m_layerStack;
+		ImGuiLayer* m_imguiLayer;
 
 	private:
 		static Application* s_instance;
