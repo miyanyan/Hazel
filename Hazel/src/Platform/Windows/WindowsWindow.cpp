@@ -1,5 +1,6 @@
 #include "WindowsWindow.h"
 
+#include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
 #include "Hazel/Log.h"
@@ -46,6 +47,7 @@ namespace Hazel {
 
 		m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(m_window);
+		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		glfwSetWindowUserPointer(m_window, &m_data);
 		setVsync(true);
 

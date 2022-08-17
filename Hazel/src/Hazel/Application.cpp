@@ -1,5 +1,7 @@
 #include "Application.h"
 
+#include <glad/glad.h>
+
 #include "Log.h"
 #ifdef _WIN32
 #include "Platform/Windows/WindowsWindow.h"
@@ -9,8 +11,10 @@
 
 
 namespace Hazel {
+	Application* Application::s_instance = nullptr;
 	Application::Application()
 	{
+		s_instance = this;
 		m_window = std::make_unique<WindowsWindow>();
 		Window::EventCallbackFn fn = [this](Event& e) {onEvent(e); };
 		m_window->setEventCallback(fn);
@@ -23,6 +27,8 @@ namespace Hazel {
 	void Application::run()
 	{
 		while (m_running) {
+			glClearColor(1, 0, 1, 1);
+			glClear(GL_COLOR_BUFFER_BIT);
 			for (auto layer : m_layerStack) {
 				layer->onUpdate();
 			}
@@ -53,11 +59,23 @@ namespace Hazel {
 	void Application::pushLayer(Layer* layer)
 	{
 		m_layerStack.pushLayer(layer);
+		layer->onAttach();
 	}
 
 	void Application::pushOverlay(Layer* layer)
 	{
 		m_layerStack.pushOverlay(layer);
+		layer->onAttach();
+	}
+
+	Window& Application::getWindow()
+	{
+		return *m_window;
+	}
+
+	Application& Application::get()
+	{
+		return *s_instance;
 	}
 }
 

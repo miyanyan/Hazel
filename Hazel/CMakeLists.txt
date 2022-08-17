@@ -3,6 +3,7 @@
 find_package (spdlog REQUIRED)
 find_package (glad REQUIRED)
 find_package (glfw3 REQUIRED)
+find_package (imgui REQUIRED)
 
 file (GLOB_RECURSE source CONFIGURE_DEPENDS src/*.h src/*.cpp)
 
@@ -14,4 +15,5 @@ target_link_libraries (${PROJECT_NAME} PUBLIC
 	spdlog::spdlog_header_only
 	glad::glad 
 	glfw
+	imgui::imgui
 )
