@@ -70,13 +70,11 @@ namespace Hazel {
 	void Application::pushLayer(Layer* layer)
 	{
 		m_layerStack.pushLayer(layer);
-		layer->onAttach();
 	}
 
 	void Application::pushOverlay(Layer* layer)
 	{
 		m_layerStack.pushOverlay(layer);
-		layer->onAttach();
 	}
 
 	Window& Application::getWindow()
