@@ -1,12 +1,12 @@
 #include "WindowsWindow.h"
 
-#include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
 #include "Hazel/Log.h"
 #include "Hazel/Events/ApplicationEvent.h"
 #include "Hazel/Events/MouseEvent.h"
 #include "Hazel/Events/KeyEvent.h"
+#include "Platform/OpenGL/OpenGLContext.h"
 
 namespace Hazel {
 
@@ -46,8 +46,10 @@ namespace Hazel {
 		}
 
 		m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, nullptr);
-		glfwMakeContextCurrent(m_window);
-		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		
+		m_context = std::make_unique<OpenglContext>(m_window);
+		m_context->init();
+
 		glfwSetWindowUserPointer(m_window, &m_data);
 		setVsync(true);
 
@@ -138,7 +140,7 @@ namespace Hazel {
 	void WindowsWindow::onUpdate()
 	{
 		glfwPollEvents();
-		glfwSwapBuffers(m_window);
+		m_context->swapBuffers();
 	}
 
 	uint32_t WindowsWindow::getWidth() const
