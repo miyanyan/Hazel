@@ -21,6 +21,10 @@ namespace Hazel {
 		if (status == 0) {
 			HZ_CORE_ERROR("Failed to init glad!");
 		}
+		HZ_CORE_INFO("OpenGL Info:");
+		HZ_CORE_INFO("  Vendor: {0}", (const char*)glGetString(GL_VENDOR));
+		HZ_CORE_INFO("  Renderer: {0}", (const char*)glGetString(GL_RENDERER));
+		HZ_CORE_INFO("  Version: {0}", (const char*)glGetString(GL_VERSION));
 
 	}
 
