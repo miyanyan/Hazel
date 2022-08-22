@@ -5,6 +5,7 @@
 #include "Hazel/Events/ApplicationEvent.h"
 #include "Hazel/LayerStack.h"
 #include "Hazel/Window.h"
+#include "Hazel/Renderer/ShaderProgram.h"
 
 namespace Hazel {
 	class ImGuiLayer;
@@ -33,6 +34,7 @@ namespace Hazel {
 		ImGuiLayer* m_imguiLayer;
 
 		unsigned int m_vertexArray, m_vertexBuffer, m_indexBuffer;
+		std::unique_ptr<ShaderProgram> m_shader;
 
 	private:
 		static Application* s_instance;

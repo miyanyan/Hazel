@@ -4,6 +4,7 @@
 
 #include "Log.h"
 #include "Hazel/ImGui/ImGuiLayer.h"
+#include "Platform/OpenGL/OpenGLShaderProgram.h"
 #ifdef _WIN32
 #include "Platform/Windows/WindowsWindow.h"
 #else
@@ -45,6 +46,35 @@ namespace Hazel {
 
 		unsigned int indices[3] = { 0, 1, 2 };
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+		std::string vertexSrc = R"(
+			#version 330 core
+			
+			layout(location = 0) in vec3 a_Position;
+
+			out vec3 v_Position;
+
+			void main()
+			{
+				v_Position = a_Position;
+				gl_Position = vec4(a_Position, 1.0);	
+			}
+		)";
+
+		std::string fragmentSrc = R"(
+			#version 330 core
+			
+			layout(location = 0) out vec4 color;
+
+			in vec3 v_Position;
+
+			void main()
+			{
+				color = vec4(v_Position * 0.5 + 0.5, 1.0);
+			}
+		)";
+
+		m_shader = std::make_unique<OpenGLShaderProgram>(vertexSrc, fragmentSrc);
 	}
 
 	Application::~Application()
@@ -57,6 +87,7 @@ namespace Hazel {
 			glClearColor(0.1f, 0.1f, 0.1f, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 
+			m_shader->bind();
 			glBindVertexArray(m_vertexArray);
 			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
