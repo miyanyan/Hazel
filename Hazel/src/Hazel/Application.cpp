@@ -5,6 +5,7 @@
 #include "Log.h"
 #include "Hazel/ImGui/ImGuiLayer.h"
 #include "Platform/OpenGL/OpenGLShaderProgram.h"
+#include "Platform/OpenGL/OpenGLBuffer.h"
 #ifdef _WIN32
 #include "Platform/Windows/WindowsWindow.h"
 #else
@@ -46,7 +47,7 @@ void message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GL
 		case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
 		}
 	}();
-	HZ_CORE_INFO("{0}, {1}, {2}, {3}: {4}", src_str, type_str, severity_str, id, message);
+	HZ_CORE_INFO("OpenGL Debug[{0}, {1}, {2}, {3}]: {4}", src_str, type_str, severity_str, id, message);
 }
 
 namespace Hazel {
@@ -61,31 +62,32 @@ namespace Hazel {
 		m_imguiLayer = new ImGuiLayer();
 		pushOverlay(m_imguiLayer);
 
-		glGenVertexArrays(1, &m_vertexArray);
-		glBindVertexArray(m_vertexArray);
-
-		glGenBuffers(1, &m_vertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
-
 		float vertices[3 * 3] = {
 			-0.5f, -0.5f, 0.0f,
 			 0.5f, -0.5f, 0.0f,
 			 0.0f,  0.5f, 0.0f
 		};
-
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
-
-		glGenBuffers(1, &m_indexBuffer);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);
-
 		unsigned int indices[3] = { 0, 1, 2 };
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+		m_vertexBuffer = std::make_unique<OpenGLVertexBuffer>();
+		m_vertexBuffer->allocate(vertices, sizeof(vertices));
+
+		//glEnableVertexAttribArray(0);
+		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+
+		m_indexBuffer = std::make_unique<OpenGLVertexBuffer>();
+		m_indexBuffer->allocate(indices, sizeof(indices));
+
+		glCreateVertexArrays(1, &m_vertexArray);
+		glVertexArrayVertexBuffer(m_vertexArray, 0, m_vertexBuffer->getBufferId(), 0, 3 * sizeof(float));
+		glVertexArrayElementBuffer(m_vertexArray, m_indexBuffer->getBufferId());
+
+		glEnableVertexArrayAttrib(m_vertexArray, 0);
+		glVertexArrayAttribFormat(m_vertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);
+		glVertexArrayAttribBinding(m_vertexArray, 0, 0);
 
 		std::string vertexSrc = R"(
-			#version 330 core
+			#version 450 core
 			
 			layout(location = 0) in vec3 a_Position;
 
@@ -99,7 +101,7 @@ namespace Hazel {
 		)";
 
 		std::string fragmentSrc = R"(
-			#version 330 core
+			#version 450 core
 			
 			layout(location = 0) out vec4 color;
 
