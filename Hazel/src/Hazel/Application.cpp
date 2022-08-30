@@ -72,11 +72,8 @@ namespace Hazel {
 		m_vertexBuffer = std::make_unique<OpenGLVertexBuffer>();
 		m_vertexBuffer->allocate(vertices, sizeof(vertices));
 
-		//glEnableVertexAttribArray(0);
-		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
-
-		m_indexBuffer = std::make_unique<OpenGLVertexBuffer>();
-		m_indexBuffer->allocate(indices, sizeof(indices));
+		m_indexBuffer = std::make_unique<OpenGLIndexBuffer>();
+		m_indexBuffer->allocate(indices, sizeof(indices), 3);
 
 		glCreateVertexArrays(1, &m_vertexArray);
 		glVertexArrayVertexBuffer(m_vertexArray, 0, m_vertexBuffer->getBufferId(), 0, 3 * sizeof(float));
@@ -131,7 +128,7 @@ namespace Hazel {
 
 			m_shader->bind();
 			glBindVertexArray(m_vertexArray);
-			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_TRIANGLES, m_indexBuffer->getCount(), GL_UNSIGNED_INT, nullptr);
 
 			for (auto layer : m_layerStack) {
 				layer->onUpdate();

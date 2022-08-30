@@ -35,7 +35,8 @@ namespace Hazel {
 		ImGuiLayer* m_imguiLayer;
 
 		unsigned int m_vertexArray;
-		std::unique_ptr<Buffer> m_vertexBuffer, m_indexBuffer;
+		std::unique_ptr<VertexBuffer> m_vertexBuffer;
+		std::unique_ptr<IndexBuffer> m_indexBuffer;
 		std::unique_ptr<ShaderProgram> m_shader;
 
 	private:

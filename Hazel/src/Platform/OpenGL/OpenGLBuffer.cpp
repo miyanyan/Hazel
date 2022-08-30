@@ -25,9 +25,9 @@ namespace Hazel {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void OpenGLVertexBuffer::allocate(const void* data, size_t size, GLuint usage)
+	void OpenGLVertexBuffer::allocate(const void* data, size_t dataSize, GLuint usage)
 	{
-		glNamedBufferData(m_bufferId, size, data, usage);
+		glNamedBufferData(m_bufferId, dataSize, data, usage);
 	}
 
 	GLuint OpenGLVertexBuffer::getBufferId() const
@@ -38,6 +38,7 @@ namespace Hazel {
 	//----------------------------------------- index buffer --------------------------------------------//
 
 	OpenGLIndexBuffer::OpenGLIndexBuffer()
+		: m_indexCount(0)
 	{
 		glCreateBuffers(1, &m_bufferId);
 	}
@@ -57,14 +58,20 @@ namespace Hazel {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
-	void OpenGLIndexBuffer::allocate(const void* data, size_t size, GLuint usage)
+	void OpenGLIndexBuffer::allocate(const void* data, size_t dataSize, size_t indexCount, GLuint usage)
 	{
-		glNamedBufferData(m_bufferId, size, data, usage);
+		m_indexCount = indexCount;
+		glNamedBufferData(m_bufferId, dataSize, data, usage);
 	}
 
 	GLuint OpenGLIndexBuffer::getBufferId() const
 	{
 		return m_bufferId;;
+	}
+
+	size_t OpenGLIndexBuffer::getCount() const
+	{
+		return m_indexCount;
 	}
 
 }
