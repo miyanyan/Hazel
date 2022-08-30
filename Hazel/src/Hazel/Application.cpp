@@ -1,8 +1,7 @@
 #include "Application.h"
 
-#include <glad/glad.h>
-
 #include "Log.h"
+#include "Hazel/Renderer/Renderer.h"
 #include "Hazel/ImGui/ImGuiLayer.h"
 #include "Platform/OpenGL/OpenGLShaderProgram.h"
 #include "Platform/OpenGL/OpenGLBuffer.h"
@@ -136,12 +135,16 @@ namespace Hazel {
 	void Application::run()
 	{
 		while (m_running) {
-			glClearColor(0.1f, 0.1f, 0.1f, 1);
-			glClear(GL_COLOR_BUFFER_BIT);
+			RenderCommand::setClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+			RenderCommand::clear();
+
+			Renderer::beginScene();
 
 			m_shader->bind();
-			m_vertexArray->bind();
-			glDrawElements(GL_TRIANGLES, m_indexBuffer->getCount(), GL_UNSIGNED_INT, nullptr);
+
+			Renderer::submit(m_vertexArray);
+
+			Renderer::endScene();
 
 			for (auto layer : m_layerStack) {
 				layer->onUpdate();
