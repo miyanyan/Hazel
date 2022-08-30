@@ -29,9 +29,9 @@ namespace Hazel {
 	{
 		auto it = std::find(m_layers.begin(), m_layers.end(), layer);
 		if (it != m_layers.end()) {
+			layer->onDetach();
 			m_layers.erase(it);
 			m_layerInsertIndex--;
-			layer->onDetach();
 		}
 	}
 
@@ -39,8 +39,8 @@ namespace Hazel {
 	{
 		auto it = std::find(m_layers.begin(), m_layers.end(), overlay);
 		if (it != m_layers.end()) {
-			m_layers.erase(it);
 			overlay->onDetach();
+			m_layers.erase(it);
 		}
 	}
 
