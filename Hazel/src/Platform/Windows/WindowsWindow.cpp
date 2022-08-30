@@ -1,12 +1,12 @@
 #include "WindowsWindow.h"
 
-#include "GLFW/glfw3.h"
-
 #include "Hazel/Log.h"
 #include "Hazel/Events/ApplicationEvent.h"
 #include "Hazel/Events/MouseEvent.h"
 #include "Hazel/Events/KeyEvent.h"
 #include "Platform/OpenGL/OpenGLContext.h"
+
+#include "GLFW/glfw3.h"
 
 namespace Hazel {
 
