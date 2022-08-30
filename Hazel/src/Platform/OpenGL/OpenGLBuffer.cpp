@@ -35,6 +35,16 @@ namespace Hazel {
 		return m_bufferId;
 	}
 
+	void OpenGLVertexBuffer::setLayout(const BufferLayout& layout)
+	{
+		m_layout = layout;
+	}
+
+	const BufferLayout& OpenGLVertexBuffer::getLayout()
+	{
+		return m_layout;
+	}
+
 	//----------------------------------------- index buffer --------------------------------------------//
 
 	OpenGLIndexBuffer::OpenGLIndexBuffer()

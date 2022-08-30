@@ -17,8 +17,12 @@ namespace Hazel {
 
 		virtual GLuint getBufferId() const override;
 
+		virtual void setLayout(const BufferLayout& layout) override;
+		virtual const BufferLayout& getLayout() override;
+
 	private:
 		unsigned int m_bufferId;
+		BufferLayout m_layout;
 	};
 
 	class OpenGLIndexBuffer : public IndexBuffer
