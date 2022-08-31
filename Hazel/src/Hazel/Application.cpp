@@ -11,6 +11,7 @@
 #else
 #error "only support windows now"
 #endif // _WIN32
+#include "GLFW/glfw3.h"
 
 
 namespace Hazel {
@@ -58,7 +59,6 @@ namespace Hazel {
 
 	Application* Application::s_instance = nullptr;
 	Application::Application()
-		: m_camera(-1.6f, 1.6f, -0.9f, 0.9f)
 	{
 		s_instance = this;
 		m_window = std::make_unique<WindowsWindow>();
@@ -68,63 +68,7 @@ namespace Hazel {
 		m_imguiLayer = new ImGuiLayer();
 		pushOverlay(m_imguiLayer);
 
-		float vertices[3 * 7] = {
-			-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
-			 0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
-			 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
-		};
-		unsigned int indices[3] = { 0, 1, 2 };
-
-		m_vertexBuffer = std::make_shared<OpenGLVertexBuffer>();
-		m_vertexBuffer->allocate(vertices, sizeof(vertices));
-		m_vertexBuffer->setLayout(BufferLayout({
-				{ ShaderDataType::Float3, "a_Position" },
-				{ ShaderDataType::Float4, "a_Color" }
-			})
-		);
-
-		m_indexBuffer = std::make_shared<OpenGLIndexBuffer>();
-		m_indexBuffer->allocate(indices, sizeof(indices), 3);
-
-		m_vertexArray = std::make_shared<OpenGLVertexArray>();
-		m_vertexArray->addVertexBuffer(m_vertexBuffer);
-		m_vertexArray->setIndexBuffer(m_indexBuffer);
-
-		std::string vertexSrc = R"(
-			#version 450 core
-			
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec4 a_Color;
-
-			uniform mat4 u_ViewProjection;
-
-			out vec3 v_Position;
-			out vec4 v_Color;
-
-			void main()
-			{
-				v_Position = a_Position;
-				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);	
-				v_Color = a_Color;
-			}
-		)";
-
-		std::string fragmentSrc = R"(
-			#version 450 core
-			
-			layout(location = 0) out vec4 color;
-
-			in vec3 v_Position;
-			in vec4 v_Color;
-
-			void main()
-			{
-				color = vec4(v_Position * 0.5 + 0.5, 1.0);
-				color = v_Color;
-			}
-		)";
-
-		m_shader = std::make_shared<OpenGLShaderProgram>(vertexSrc, fragmentSrc);
+		
 
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(msgCallback, nullptr);
@@ -138,20 +82,12 @@ namespace Hazel {
 	void Application::run()
 	{
 		while (m_running) {
-			RenderCommand::setClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
-			RenderCommand::clear();
-
-			m_camera.setPosition({ 0.5f, 0.5f, 0.0f });
-			m_camera.setRotation(45.0f);
-
-			Renderer::beginScene(m_camera);
-
-			Renderer::submit(m_shader, m_vertexArray);
-
-			Renderer::endScene();
+			float time = glfwGetTime();
+			TimeStep timestep = time - m_lastFrameTime;
+			m_lastFrameTime = time;
 
 			for (auto layer : m_layerStack) {
-				layer->onUpdate();
+				layer->onUpdate(timestep);
 			}
 
 			m_imguiLayer->begin();
