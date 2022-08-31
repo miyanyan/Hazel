@@ -58,6 +58,7 @@ namespace Hazel {
 
 	Application* Application::s_instance = nullptr;
 	Application::Application()
+		: m_camera(-1.6f, 1.6f, -0.9f, 0.9f)
 	{
 		s_instance = this;
 		m_window = std::make_unique<WindowsWindow>();
@@ -95,13 +96,15 @@ namespace Hazel {
 			layout(location = 0) in vec3 a_Position;
 			layout(location = 1) in vec4 a_Color;
 
+			uniform mat4 u_ViewProjection;
+
 			out vec3 v_Position;
 			out vec4 v_Color;
 
 			void main()
 			{
 				v_Position = a_Position;
-				gl_Position = vec4(a_Position, 1.0);	
+				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);	
 				v_Color = a_Color;
 			}
 		)";
@@ -138,11 +141,12 @@ namespace Hazel {
 			RenderCommand::setClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 			RenderCommand::clear();
 
-			Renderer::beginScene();
+			m_camera.setPosition({ 0.5f, 0.5f, 0.0f });
+			m_camera.setRotation(45.0f);
 
-			m_shader->bind();
+			Renderer::beginScene(m_camera);
 
-			Renderer::submit(m_vertexArray);
+			Renderer::submit(m_shader, m_vertexArray);
 
 			Renderer::endScene();
 

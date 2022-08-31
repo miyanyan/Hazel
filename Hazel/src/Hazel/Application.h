@@ -8,6 +8,7 @@
 #include "Hazel/Renderer/ShaderProgram.h"
 #include "Hazel/Renderer/Buffer.h"
 #include "Hazel/Renderer/VertexArray.h"
+#include "Hazel/Renderer/OrthographicCamera.h"
 
 namespace Hazel {
 	class ImGuiLayer;
@@ -39,6 +40,8 @@ namespace Hazel {
 		std::shared_ptr<VertexBuffer> m_vertexBuffer;
 		std::shared_ptr<IndexBuffer> m_indexBuffer;
 		std::shared_ptr<ShaderProgram> m_shader;
+
+		OrthographicCamera m_camera;
 
 	private:
 		static Application* s_instance;

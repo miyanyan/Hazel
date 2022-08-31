@@ -3,8 +3,8 @@
 #include <vector>
 
 #include "glad/glad.h"
+#include "glm/gtc/type_ptr.hpp"
 
-#include "OpenGLShader.h"
 #include "Hazel/Log.h"
 
 namespace Hazel {
@@ -56,5 +56,50 @@ namespace Hazel {
 	void OpenGLShaderProgram::unbind()
 	{
 		glUseProgram(0);
+	}
+	void OpenGLShaderProgram::setUniform(const char* name, int val) const {
+		GLuint loc;
+		loc = glGetUniformLocation(programId, name);
+		glUniform1i(loc, val);
+	}
+	void OpenGLShaderProgram::setUniform(const char* name, float val) const {
+		GLuint loc;
+		loc = glGetUniformLocation(programId, name);
+		glUniform1f(loc, val);
+	}
+	void OpenGLShaderProgram::setUniform(const char* name, glm::vec2 const& val) const {
+		GLuint loc;
+		loc = glGetUniformLocation(programId, name);
+		glUniform2fv(loc, 1, glm::value_ptr(val));
+	}
+	void OpenGLShaderProgram::setUniform(const char* name, glm::vec3 const& val) const {
+		GLuint loc;
+		loc = glGetUniformLocation(programId, name);
+		glUniform3fv(loc, 1, glm::value_ptr(val));
+	}
+	void OpenGLShaderProgram::setUniform(const char* name, glm::vec4 const& val) const {
+		GLuint loc;
+		loc = glGetUniformLocation(programId, name);
+		glUniform4fv(loc, 1, glm::value_ptr(val));
+	}
+	void OpenGLShaderProgram::setUniform(const char* name, glm::mat3x3 const& val) const {
+		GLuint loc;
+		loc = glGetUniformLocation(programId, name);
+		glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(val));
+	}
+	void OpenGLShaderProgram::setUniform(const char* name, glm::mat4x4 const& val) const {
+		GLuint loc;
+		loc = glGetUniformLocation(programId, name);
+		glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(val));
+	}
+	void OpenGLShaderProgram::setUniform(const char* name, glm::mat4x3 const& val) const {
+		GLuint loc;
+		loc = glGetUniformLocation(programId, name);
+		glUniformMatrix4x3fv(loc, 1, GL_FALSE, glm::value_ptr(val));
+	}
+	void OpenGLShaderProgram::setUniform(const char* name, glm::mat3x4 const& val) const {
+		GLuint loc;
+		loc = glGetUniformLocation(programId, name);
+		glUniformMatrix3x4fv(loc, 1, GL_FALSE, glm::value_ptr(val));
 	}
 }
