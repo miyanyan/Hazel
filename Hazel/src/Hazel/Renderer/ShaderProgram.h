@@ -24,6 +24,8 @@ namespace Hazel {
         virtual void setUniform(const char* name, const glm::mat3x4& val) const = 0;
         virtual void setUniform(const char* name, const glm::mat4x3& val) const = 0;
 
+        static ShaderProgram* create(const std::string& vertexSource, const std::string& fragmentSource);
+
 	};
 
 }

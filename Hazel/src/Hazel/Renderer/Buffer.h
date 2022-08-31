@@ -117,6 +117,8 @@ namespace Hazel {
 
 		virtual void setLayout(const BufferLayout& layout) = 0;
 		virtual const BufferLayout& getLayout() = 0;
+
+		static VertexBuffer* create();
 	};
 
 	class IndexBuffer
@@ -132,6 +134,8 @@ namespace Hazel {
 		virtual GLuint getBufferId() const = 0;
 
 		virtual size_t getCount() const = 0;
+
+		static IndexBuffer* create();
 	};
 
 }
