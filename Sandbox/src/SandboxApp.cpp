@@ -1,7 +1,8 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include "imgui.h"
-#include <Hazel.h>
+#include "Hazel.h"
+#include "Hazel/Utils/SourceLocation.h"
 
 class ExampleLayer : public Hazel::Layer
 {
@@ -35,11 +36,11 @@ public:
 		m_vertexArray->setIndexBuffer(m_indexBuffer);
 
 		// square
-		float squareVertices[3 * 4] = {
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.5f,  0.5f, 0.0f,
-			-0.5f,  0.5f, 0.0f
+		float squareVertices[5 * 4] = {
+			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+			 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+			 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f 
 		};
 		uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
 
@@ -47,7 +48,8 @@ public:
 		squareVBO.reset(Hazel::VertexBuffer::create());
 		squareVBO->allocate(squareVertices, sizeof(squareVertices));
 		squareVBO->setLayout({
-			{ Hazel::ShaderDataType::Float3, "a_Position" }
+			{ Hazel::ShaderDataType::Float3, "a_Position" },
+			{ Hazel::ShaderDataType::Float2, "a_TexCoord" }
 		});
 
 		std::shared_ptr<Hazel::IndexBuffer> squareIBO;
@@ -130,7 +132,49 @@ public:
 		)";
 
 		m_flatColorShader.reset(Hazel::ShaderProgram::create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
-	}
+	
+		// texture shader
+		std::string textureShaderVertexSrc = R"(
+			#version 330 core
+			
+			layout(location = 0) in vec3 a_Position;
+			layout(location = 1) in vec2 a_TexCoord;
+
+			uniform mat4 u_ViewProjection;
+			uniform mat4 u_Transform;
+
+			out vec2 v_TexCoord;
+
+			void main()
+			{
+				v_TexCoord = a_TexCoord;
+				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);	
+			}
+		)";
+
+		std::string textureShaderFragmentSrc = R"(
+			#version 330 core
+			
+			layout(location = 0) out vec4 color;
+
+			in vec2 v_TexCoord;
+			
+			uniform sampler2D u_Texture;
+
+			void main()
+			{
+				color = texture(u_Texture, v_TexCoord);
+			}
+		)";
+
+		m_textureShader.reset(Hazel::ShaderProgram::create(textureShaderVertexSrc, textureShaderFragmentSrc));
+
+		std::string imgfile = Hazel::getFileDir(__FILE__) + "/../assets/textures/Checkerboard.png";
+		m_texture.reset(Hazel::Texture2D::create(imgfile.c_str()));
+
+		m_textureShader->bind();
+		m_textureShader->setUniform("u_Texture", 0);
+    }
 	
 	void onUpdate(Hazel::TimeStep ts) override {
 
@@ -170,6 +214,8 @@ public:
 		}
 
 		Hazel::Renderer::submit(m_shader, m_vertexArray);
+		m_texture->bind();
+		Hazel::Renderer::submit(m_textureShader, m_squareVAO, glm::scale(glm::mat4(1.0f), glm::vec3(0.5f)));
 
 		Hazel::Renderer::endScene();
 	}
@@ -189,7 +235,8 @@ private:
 	std::shared_ptr<Hazel::VertexArray> m_vertexArray, m_squareVAO;
 	std::shared_ptr<Hazel::VertexBuffer> m_vertexBuffer;
 	std::shared_ptr<Hazel::IndexBuffer> m_indexBuffer;
-	std::shared_ptr<Hazel::ShaderProgram> m_shader, m_flatColorShader;
+	std::shared_ptr<Hazel::Texture2D> m_texture;
+	std::shared_ptr<Hazel::ShaderProgram> m_shader, m_flatColorShader, m_textureShader;
 
 	Hazel::OrthographicCamera m_camera;
 	glm::vec3 m_cameraPosition;
