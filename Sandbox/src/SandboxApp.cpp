@@ -1,4 +1,6 @@
 #include "glm/gtc/matrix_transform.hpp"
+#include <glm/gtc/type_ptr.hpp>
+#include "imgui.h"
 #include <Hazel.h>
 
 class ExampleLayer : public Hazel::Layer
@@ -9,6 +11,7 @@ public:
 		, m_camera(-1.6f, 1.6f, -0.9f, 0.9f)
 		, m_cameraPosition(0.0f)
 	{
+		// triangle
 		float vertices[3 * 7] = {
 			-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
 			 0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
@@ -31,6 +34,31 @@ public:
 		m_vertexArray->addVertexBuffer(m_vertexBuffer);
 		m_vertexArray->setIndexBuffer(m_indexBuffer);
 
+		// square
+		float squareVertices[3 * 4] = {
+			-0.5f, -0.5f, 0.0f,
+			 0.5f, -0.5f, 0.0f,
+			 0.5f,  0.5f, 0.0f,
+			-0.5f,  0.5f, 0.0f
+		};
+		uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
+
+		std::shared_ptr<Hazel::VertexBuffer> squareVBO;
+		squareVBO.reset(Hazel::VertexBuffer::create());
+		squareVBO->allocate(squareVertices, sizeof(squareVertices));
+		squareVBO->setLayout({
+			{ Hazel::ShaderDataType::Float3, "a_Position" }
+		});
+
+		std::shared_ptr<Hazel::IndexBuffer> squareIBO;
+		squareIBO.reset(Hazel::IndexBuffer::create());
+		squareIBO->allocate(squareIndices, sizeof(squareIndices), sizeof(squareIndices) / sizeof(uint32_t));
+
+		m_squareVAO.reset(Hazel::VertexArray::create());
+		m_squareVAO->addVertexBuffer(squareVBO);
+		m_squareVAO->setIndexBuffer(squareIBO);
+
+		// triangle shader
 		std::string vertexSrc = R"(
 			#version 450 core
 			
@@ -67,6 +95,41 @@ public:
 		)";
 
 		m_shader.reset(Hazel::ShaderProgram::create(vertexSrc, fragmentSrc));
+
+		// square shader
+		std::string flatColorShaderVertexSrc = R"(
+			#version 330 core
+			
+			layout(location = 0) in vec3 a_Position;
+
+			uniform mat4 u_ViewProjection;
+			uniform mat4 u_Transform;
+
+			out vec3 v_Position;
+
+			void main()
+			{
+				v_Position = a_Position;
+				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);	
+			}
+		)";
+
+		std::string flatColorShaderFragmentSrc = R"(
+			#version 330 core
+			
+			layout(location = 0) out vec4 color;
+
+			in vec3 v_Position;
+			
+			uniform vec3 u_Color;
+
+			void main()
+			{
+				color = vec4(u_Color, 1.0);
+			}
+		)";
+
+		m_flatColorShader.reset(Hazel::ShaderProgram::create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
 	}
 	
 	void onUpdate(Hazel::TimeStep ts) override {
@@ -94,14 +157,19 @@ public:
 
 		Hazel::Renderer::beginScene(m_camera);
 
+		m_flatColorShader->bind();
+		m_flatColorShader->setUniform("u_Color", m_squareColor);
+
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 		for (int x = 0; x < 20; ++x) {
 			for (int y = 0; y < 20; ++y) {
 				glm::vec3 pos(x * 0.11f, y * 0.11f, 0.0f);
 				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
-				Hazel::Renderer::submit(m_shader, m_vertexArray, transform);
+				Hazel::Renderer::submit(m_flatColorShader, m_squareVAO, transform);
 			}
 		}
+
+		Hazel::Renderer::submit(m_shader, m_vertexArray);
 
 		Hazel::Renderer::endScene();
 	}
@@ -110,11 +178,18 @@ public:
 		HZ_INFO("ExampleLayer::event {}", e.toString());
 	}
 
+	void onImGuiRender() override {
+		ImGui::Begin("Settings");
+		ImGui::ColorEdit3("Square Color", glm::value_ptr(m_squareColor));
+		ImGui::End();
+	}
+
+
 private:
-	std::shared_ptr<Hazel::VertexArray> m_vertexArray;
+	std::shared_ptr<Hazel::VertexArray> m_vertexArray, m_squareVAO;
 	std::shared_ptr<Hazel::VertexBuffer> m_vertexBuffer;
 	std::shared_ptr<Hazel::IndexBuffer> m_indexBuffer;
-	std::shared_ptr<Hazel::ShaderProgram> m_shader;
+	std::shared_ptr<Hazel::ShaderProgram> m_shader, m_flatColorShader;
 
 	Hazel::OrthographicCamera m_camera;
 	glm::vec3 m_cameraPosition;
@@ -122,6 +197,8 @@ private:
 
 	float m_cameraRotation = 0.0f;
 	float m_cameraRotationSpeed = 180.0f;
+
+	glm::vec3 m_squareColor = { 0.2f, 0.3f, 0.8f };
 };
 
 class Sandbox : public Hazel::Application
