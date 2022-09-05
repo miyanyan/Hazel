@@ -45,16 +45,20 @@ namespace Hazel {
 			return "";
 		}();
 
-		auto const severity_str = [severity]() {
-			switch (severity) {
-				case GL_DEBUG_SEVERITY_NOTIFICATION: return "NOTIFICATION";
-				case GL_DEBUG_SEVERITY_LOW: return "LOW";
-				case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
-				case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
-			}
-			return "";
-		}();
-		HZ_CORE_INFO("OpenGL Debug[{0}, {1}, {2}, {3}]: {4}", src_str, type_str, severity_str, id, message);
+		switch (severity) {
+			case GL_DEBUG_SEVERITY_NOTIFICATION: 
+				HZ_CORE_TRACE("OpenGL[{}, {}, {}]: {}", src_str, type_str, id, message);
+				break;
+			case GL_DEBUG_SEVERITY_LOW: 
+				HZ_CORE_INFO("OpenGL[{}, {}, {}]: {}", src_str, type_str, id, message);
+				break;
+			case GL_DEBUG_SEVERITY_MEDIUM: 
+				HZ_CORE_WARN("OpenGL[{}, {}, {}]: {}", src_str, type_str, id, message);
+				break;
+			case GL_DEBUG_SEVERITY_HIGH:
+				HZ_CORE_ERROR("OpenGL[{}, {}, {}]: {}", src_str, type_str, id, message);
+				break;
+		}
 	}
 
 	Application* Application::s_instance = nullptr;
