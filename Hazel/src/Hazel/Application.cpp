@@ -69,10 +69,10 @@ namespace Hazel {
 		Window::EventCallbackFn fn = [this](Event& e) {onEvent(e); };
 		m_window->setEventCallback(fn);
 
+		Renderer::init();
+
 		m_imguiLayer = new ImGuiLayer();
 		pushOverlay(m_imguiLayer);
-
-		
 
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(msgCallback, nullptr);

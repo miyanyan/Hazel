@@ -17,6 +17,8 @@ namespace Hazel {
 
 		static inline API getAPI() { return s_API; }
 
+		virtual void init() = 0;
+
 		virtual void setClearColor(const glm::vec4& color) = 0;
 		virtual void clear() = 0;
 

@@ -172,7 +172,7 @@ public:
 		m_textureShader->setUniform("u_Texture", 0);
 
 		m_texture.reset(Hazel::Texture2D::create("./assets/textures/Checkerboard.png"));
-
+		m_logoTexture.reset(Hazel::Texture2D::create("./assets/textures/ChernoLogo.png"));
     }
 	
 	void onUpdate(Hazel::TimeStep ts) override {
@@ -215,6 +215,8 @@ public:
 		Hazel::Renderer::submit(m_shader, m_vertexArray);
 		m_texture->bind();
 		Hazel::Renderer::submit(m_textureShader, m_squareVAO, glm::scale(glm::mat4(1.0f), glm::vec3(0.5f)));
+		m_logoTexture->bind();
+		Hazel::Renderer::submit(m_textureShader, m_squareVAO, glm::scale(glm::mat4(1.0f), glm::vec3(0.5f)));
 
 		Hazel::Renderer::endScene();
 	}
@@ -234,7 +236,7 @@ private:
 	std::shared_ptr<Hazel::VertexArray> m_vertexArray, m_squareVAO;
 	std::shared_ptr<Hazel::VertexBuffer> m_vertexBuffer;
 	std::shared_ptr<Hazel::IndexBuffer> m_indexBuffer;
-	std::shared_ptr<Hazel::Texture2D> m_texture;
+	std::shared_ptr<Hazel::Texture2D> m_texture, m_logoTexture;
 	std::shared_ptr<Hazel::ShaderProgram> m_shader, m_flatColorShader, m_textureShader;
 
 	Hazel::OrthographicCamera m_camera;
