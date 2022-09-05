@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <memory>
+#include <unordered_map>
 
 #include "Hazel/Renderer/ShaderProgram.h"
 #include "OpenGLShader.h"
@@ -10,11 +11,16 @@ namespace Hazel {
 	class OpenGLShaderProgram : public ShaderProgram
 	{
 	public:
-        OpenGLShaderProgram(const std::string& vertexSource, const std::string& fragmentSource);
+        OpenGLShaderProgram();
 		~OpenGLShaderProgram();
 
-		virtual void bind();
-		virtual void unbind();
+		virtual void addShaderFromSourceCode(Shader::ShaderType type, const std::string& source) override;
+		virtual void addShaderFromSourceFile(Shader::ShaderType type, const std::string& file) override;
+
+		virtual void link() override;
+
+		virtual void bind() override;
+		virtual void unbind() override;
 
 		virtual void setUniform(const char* name, int val) const override;
 		virtual void setUniform(const char* name, float val) const override;
@@ -31,9 +37,9 @@ namespace Hazel {
 
 	private:
 		void attach(const OpenGLShader* shader);
-		void link();
+		std::string readFile(const std::string& file);
 
-		std::unique_ptr<OpenGLShader> m_vertex, m_fragment;
+		std::unordered_map<unsigned int, std::unique_ptr<OpenGLShader>> m_shaders;
 	};
 
 }

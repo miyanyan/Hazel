@@ -1,6 +1,7 @@
 #include "OpenGLShaderProgram.h"
 
-#include <vector>
+#include <fstream>
+#include <sstream>
 
 #include "glad/glad.h"
 #include "glm/gtc/type_ptr.hpp"
@@ -9,17 +10,9 @@
 
 namespace Hazel {
 
-	OpenGLShaderProgram::OpenGLShaderProgram(const std::string& vertexSource, const std::string& fragmentSource)
+	OpenGLShaderProgram::OpenGLShaderProgram()
 	{
-		m_vertex = std::make_unique<OpenGLShader>(Shader::VERTEX);
-		m_vertex->compile(vertexSource);
-		m_fragment = std::make_unique<OpenGLShader>(Shader::FRAGMENT);
-		m_fragment->compile(fragmentSource);
-
 		programId = glCreateProgram();
-		attach(m_vertex.get());
-		attach(m_fragment.get());
-		link();
 	}
 
 	OpenGLShaderProgram::~OpenGLShaderProgram()
@@ -27,9 +20,31 @@ namespace Hazel {
 		glDeleteProgram(programId);
 	}
 
+	void OpenGLShaderProgram::addShaderFromSourceCode(Shader::ShaderType type, const std::string& source)
+	{
+		auto shader = std::make_unique<OpenGLShader>(type);
+		shader->compile(source);
+		attach(shader.get());
+		m_shaders[shader->shaderId] = std::move(shader);
+	}
+
+	void OpenGLShaderProgram::addShaderFromSourceFile(Shader::ShaderType type, const std::string& file)
+	{
+		auto source = readFile(file);
+		addShaderFromSourceCode(type, source);
+	}
+
 	void OpenGLShaderProgram::attach(const OpenGLShader* shader)
 	{
 		glAttachShader(programId, shader->shaderId);
+	}
+
+	std::string OpenGLShaderProgram::readFile(const std::string& file)
+	{
+		std::ifstream in(file);
+		std::stringstream buffer;
+		buffer << in.rdbuf();
+		return buffer.str();
 	}
 
 	void OpenGLShaderProgram::link()

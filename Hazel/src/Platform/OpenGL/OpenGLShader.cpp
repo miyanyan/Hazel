@@ -9,6 +9,7 @@
 namespace Hazel {
 
 	OpenGLShader::OpenGLShader(ShaderType type)
+		: shaderId(0)
 	{
 		if (type == ShaderType::VERTEX) {
 			shaderId = glCreateShader(GL_VERTEX_SHADER);

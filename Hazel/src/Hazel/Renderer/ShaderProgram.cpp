@@ -4,12 +4,12 @@
 
 namespace Hazel {
 
-	ShaderProgram* ShaderProgram::create(const std::string& vertexSource, const std::string& fragmentSource)
+	ShaderProgram* ShaderProgram::create()
 	{
 		switch (Renderer::getAPI())
 		{
 		case RendererAPI::API::None:    return nullptr;
-		case RendererAPI::API::OpenGL:  return new OpenGLShaderProgram(vertexSource, fragmentSource);
+		case RendererAPI::API::OpenGL:  return new OpenGLShaderProgram();
 		}
 
 		return nullptr;

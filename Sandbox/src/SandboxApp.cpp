@@ -96,7 +96,10 @@ public:
 			}
 		)";
 
-		m_shader.reset(Hazel::ShaderProgram::create(vertexSrc, fragmentSrc));
+		m_shader.reset(Hazel::ShaderProgram::create());
+		m_shader->addShaderFromSourceCode(Hazel::Shader::VERTEX, vertexSrc);
+		m_shader->addShaderFromSourceCode(Hazel::Shader::FRAGMENT, fragmentSrc);
+		m_shader->link();
 
 		// square shader
 		std::string flatColorShaderVertexSrc = R"(
@@ -131,43 +134,17 @@ public:
 			}
 		)";
 
-		m_flatColorShader.reset(Hazel::ShaderProgram::create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
+		m_flatColorShader.reset(Hazel::ShaderProgram::create());
+		m_flatColorShader->addShaderFromSourceCode(Hazel::Shader::VERTEX, flatColorShaderVertexSrc);
+		m_flatColorShader->addShaderFromSourceCode(Hazel::Shader::FRAGMENT, flatColorShaderFragmentSrc);
+		m_flatColorShader->link();
 	
 		// texture shader
-		std::string textureShaderVertexSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec2 a_TexCoord;
+		m_textureShader.reset(Hazel::ShaderProgram::create());
+		m_textureShader->addShaderFromSourceFile(Hazel::Shader::VERTEX, "./assets/shaders/Texture.vert");
+		m_textureShader->addShaderFromSourceFile(Hazel::Shader::FRAGMENT, "./assets/shaders/Texture.frag");
+		m_textureShader->link();
 
-			uniform mat4 u_ViewProjection;
-			uniform mat4 u_Transform;
-
-			out vec2 v_TexCoord;
-
-			void main()
-			{
-				v_TexCoord = a_TexCoord;
-				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);	
-			}
-		)";
-
-		std::string textureShaderFragmentSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) out vec4 color;
-
-			in vec2 v_TexCoord;
-			
-			uniform sampler2D u_Texture;
-
-			void main()
-			{
-				color = texture(u_Texture, v_TexCoord);
-			}
-		)";
-
-		m_textureShader.reset(Hazel::ShaderProgram::create(textureShaderVertexSrc, textureShaderFragmentSrc));
 		m_textureShader->bind();
 		m_textureShader->setUniform("u_Texture", 0);
 
