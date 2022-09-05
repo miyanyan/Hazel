@@ -9,8 +9,7 @@ class ExampleLayer : public Hazel::Layer
 public:
 	ExampleLayer() 
 		: Layer("Example") 
-		, m_camera(-1.6f, 1.6f, -0.9f, 0.9f)
-		, m_cameraPosition(0.0f)
+		, m_cameraController(1280.0f / 720.0f, true)
 	{
 		// triangle
 		float vertices[3 * 7] = {
@@ -154,28 +153,12 @@ public:
 	
 	void onUpdate(Hazel::Timestep ts) override {
 
-		if (Hazel::Input::isKeyPressed(HZ_KEY_LEFT))
-			m_cameraPosition.x -= m_cameraMoveSpeed * ts;
-		else if (Hazel::Input::isKeyPressed(HZ_KEY_RIGHT))
-			m_cameraPosition.x += m_cameraMoveSpeed * ts;
-
-		if (Hazel::Input::isKeyPressed(HZ_KEY_UP))
-			m_cameraPosition.y += m_cameraMoveSpeed * ts;
-		else if (Hazel::Input::isKeyPressed(HZ_KEY_DOWN))
-			m_cameraPosition.y -= m_cameraMoveSpeed * ts;
-
-		if (Hazel::Input::isKeyPressed(HZ_KEY_A))
-			m_cameraRotation += m_cameraRotationSpeed * ts;
-		if (Hazel::Input::isKeyPressed(HZ_KEY_D))
-			m_cameraRotation -= m_cameraRotationSpeed * ts;
+		m_cameraController.onUpdate(ts);
 
 		Hazel::RenderCommand::setClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 		Hazel::RenderCommand::clear();
 
-		m_camera.setPosition(m_cameraPosition);
-		m_camera.setRotation(m_cameraRotation);
-
-		Hazel::Renderer::beginScene(m_camera);
+		Hazel::Renderer::beginScene(m_cameraController.getCamera());
 
 		m_flatColorShader->bind();
 		m_flatColorShader->setUniform("u_Color", m_squareColor);
@@ -199,7 +182,7 @@ public:
 	}
 
 	void onEvent(Hazel::Event& e) override {
-		HZ_INFO("ExampleLayer::event {}", e.toString());
+		m_cameraController.onEvent(e);
 	}
 
 	void onImGuiRender() override {
@@ -216,12 +199,7 @@ private:
 	std::shared_ptr<Hazel::Texture2D> m_texture, m_logoTexture;
 	std::shared_ptr<Hazel::ShaderProgram> m_shader, m_flatColorShader, m_textureShader;
 
-	Hazel::OrthographicCamera m_camera;
-	glm::vec3 m_cameraPosition;
-	float m_cameraMoveSpeed = 5.0f;
-
-	float m_cameraRotation = 0.0f;
-	float m_cameraRotationSpeed = 180.0f;
+	Hazel::OrthographicCameraController m_cameraController;
 
 	glm::vec3 m_squareColor = { 0.2f, 0.3f, 0.8f };
 };

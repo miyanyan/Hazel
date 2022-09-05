@@ -16,5 +16,6 @@
 #include "Hazel/Renderer/VertexArray.h"
 #include "Hazel/Renderer/Texture.h"
 #include "Hazel/Renderer/OrthographicCamera.h"
+#include "Hazel/Renderer/OrthographicCameraController.h"
 
 #include "Hazel/EntryPoint.h"
