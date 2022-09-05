@@ -9,6 +9,7 @@ namespace Hazel {
 	LayerStack::~LayerStack()
 	{
 		for (Layer* layer : m_layers) {
+			layer->onDetach();
 			delete layer;
 		}
 	}
