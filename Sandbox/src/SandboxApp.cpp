@@ -168,12 +168,11 @@ public:
 		)";
 
 		m_textureShader.reset(Hazel::ShaderProgram::create(textureShaderVertexSrc, textureShaderFragmentSrc));
-
-		std::string imgfile = Hazel::getFileDir(__FILE__) + "/../assets/textures/Checkerboard.png";
-		m_texture.reset(Hazel::Texture2D::create(imgfile.c_str()));
-
 		m_textureShader->bind();
 		m_textureShader->setUniform("u_Texture", 0);
+
+		m_texture.reset(Hazel::Texture2D::create("./assets/textures/Checkerboard.png"));
+
     }
 	
 	void onUpdate(Hazel::TimeStep ts) override {
