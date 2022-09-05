@@ -25,6 +25,7 @@ namespace Hazel {
 	}
 
 	OpenGLVertexArray::OpenGLVertexArray()
+		: m_vertexBufferIndex(0)
 	{
 		glCreateVertexArrays(1, &m_vertexArrayId);
 	}
@@ -49,17 +50,16 @@ namespace Hazel {
 		// assume bindingindex = 0
 		GLuint bindingindex = 0;
 
-		uint32_t index = 0;
 		auto& layout = vbo->getLayout();
 		for (const auto& element : layout) {
-			glEnableVertexArrayAttrib(m_vertexArrayId, index);
-			glVertexArrayAttribFormat(m_vertexArrayId, index,
+			glEnableVertexArrayAttrib(m_vertexArrayId, m_vertexBufferIndex);
+			glVertexArrayAttribFormat(m_vertexArrayId, m_vertexBufferIndex,
 				element.getComponentCount(),
 				shaderDataTypeToOpenGLBaseType(element.type),
 				element.normalized ? GL_TRUE : GL_FALSE,
 				element.offset);
-			glVertexArrayAttribBinding(m_vertexArrayId, index, bindingindex);
-			index++;
+			glVertexArrayAttribBinding(m_vertexArrayId, m_vertexBufferIndex, bindingindex);
+			m_vertexBufferIndex++;
 		}
 
 		glVertexArrayVertexBuffer(m_vertexArrayId, bindingindex, vbo->getBufferId(), 0, layout.getStride());

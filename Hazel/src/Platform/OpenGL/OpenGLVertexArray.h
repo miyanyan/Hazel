@@ -23,6 +23,7 @@ namespace Hazel {
 		std::vector<std::shared_ptr<VertexBuffer>> m_vertexBuffers;
 		std::shared_ptr<IndexBuffer> m_indexBuffer;
 		unsigned int m_vertexArrayId;
+		size_t m_vertexBufferIndex;
 	};
 
 }
