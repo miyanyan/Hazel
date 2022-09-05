@@ -4,7 +4,7 @@
 #include <functional>
 #include <sstream>
 
-#include "Hazel/Core.h"
+#include "Hazel/Core/Core.h"
 
 namespace Hazel {
 	enum class EventType
