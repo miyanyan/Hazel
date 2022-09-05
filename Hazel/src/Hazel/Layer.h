@@ -13,7 +13,7 @@ namespace Hazel {
 
 		virtual void onAttach();
 		virtual void onDetach();
-		virtual void onUpdate(TimeStep ts);
+		virtual void onUpdate(Timestep ts);
 		virtual void onImGuiRender();
 		virtual void onEvent(Event& event);
 

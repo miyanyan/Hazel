@@ -152,7 +152,7 @@ public:
 		m_logoTexture.reset(Hazel::Texture2D::create("./assets/textures/ChernoLogo.png"));
     }
 	
-	void onUpdate(Hazel::TimeStep ts) override {
+	void onUpdate(Hazel::Timestep ts) override {
 
 		if (Hazel::Input::isKeyPressed(HZ_KEY_LEFT))
 			m_cameraPosition.x -= m_cameraMoveSpeed * ts;

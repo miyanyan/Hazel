@@ -87,7 +87,7 @@ namespace Hazel {
 	{
 		while (m_running) {
 			float time = glfwGetTime();
-			TimeStep timestep = time - m_lastFrameTime;
+			Timestep timestep = time - m_lastFrameTime;
 			m_lastFrameTime = time;
 
 			for (auto layer : m_layerStack) {
