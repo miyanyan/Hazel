@@ -90,8 +90,10 @@ namespace Hazel {
 			Timestep timestep = time - m_lastFrameTime;
 			m_lastFrameTime = time;
 
-			for (auto layer : m_layerStack) {
-				layer->onUpdate(timestep);
+			if (!m_minimized) {
+				for (auto layer : m_layerStack) {
+					layer->onUpdate(timestep);
+				}
 			}
 
 			m_imguiLayer->begin();
@@ -107,8 +109,8 @@ namespace Hazel {
 	void Application::onEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		EventDispatcher::EventFn<WindowCloseEvent> fn = [this](WindowCloseEvent& e) {return onWindowClose(e); };
-		dispatcher.dispatch(fn);
+		dispatcher.dispatch<WindowCloseEvent>([this](WindowCloseEvent& e) {return onWindowClose(e); });
+		dispatcher.dispatch<WindowResizeEvent>([this](WindowResizeEvent& e) {return onWindowResize(e); });
 
 		for (auto it = m_layerStack.rbegin(); it != m_layerStack.rend(); ++it) {
 			(*it)->onEvent(e);
@@ -122,6 +124,13 @@ namespace Hazel {
 	{
 		m_running = false;
 		return true;
+	}
+
+	bool Application::onWindowResize(WindowResizeEvent& e)
+	{
+		m_minimized = e.getWidth() == 0 || e.getHeight() == 0;
+		Renderer::onWindowResize(e.getWidth(), e.getHeight());
+		return false;
 	}
 
 	void Application::pushLayer(Layer* layer)
