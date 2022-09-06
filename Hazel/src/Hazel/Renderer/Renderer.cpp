@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "Renderer2D.h"
 
 namespace Hazel {
 
@@ -7,6 +8,7 @@ namespace Hazel {
 	void Renderer::init()
 	{
 		RenderCommand::init();
+		Renderer2D::init();
 	}
 
 	void Renderer::onWindowResize(uint32_t width, uint32_t height)
