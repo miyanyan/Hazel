@@ -1,6 +1,7 @@
 #pragma once
 
 #include <utility>
+#include <memory>
 
 #include "Hazel/Core/Core.h"
 
@@ -23,7 +24,7 @@ namespace Hazel {
 		virtual float getMouseXImpl() = 0;
 		virtual float getMouseYImpl() = 0;
 	private:
-		static Input* s_instance;
+		static std::unique_ptr<Input> s_instance;
 	};
 
 }

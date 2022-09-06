@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "RendererAPI.h"
 
 namespace Hazel {
@@ -32,7 +34,7 @@ namespace Hazel {
 			s_rendererAPI->drawIndexed(vertexArray);
 		}
 	private:
-		static RendererAPI* s_rendererAPI;
+		static std::unique_ptr<RendererAPI> s_rendererAPI;
 	};
 
 }

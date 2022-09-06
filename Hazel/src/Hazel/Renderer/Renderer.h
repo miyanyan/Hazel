@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "RenderCommand.h"
 #include "OrthographicCamera.h"
 #include "ShaderProgram.h"
@@ -23,7 +25,7 @@ namespace Hazel {
 		{
 			glm::mat4 viewProjectionMatrix;
 		};
-		static SceneData* s_sceneData;
+		static std::unique_ptr<SceneData> s_sceneData;
 	};
 
 

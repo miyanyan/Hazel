@@ -6,7 +6,7 @@
 
 namespace Hazel {
 
-	Input* Input::s_instance = new WindowsInput();
+	std::unique_ptr<Input> Input::s_instance = std::make_unique<WindowsInput>();
 
 	bool WindowsInput::isKeyPressedImpl(int keycode)
 	{

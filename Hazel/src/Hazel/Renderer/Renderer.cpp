@@ -2,7 +2,7 @@
 
 namespace Hazel {
 
-	Renderer::SceneData* Renderer::s_sceneData = new Renderer::SceneData;
+	std::unique_ptr<Renderer::SceneData> Renderer::s_sceneData = std::make_unique<Renderer::SceneData>();
 
 	void Renderer::init()
 	{

@@ -4,6 +4,6 @@
 
 namespace Hazel {
 
-	RendererAPI* RenderCommand::s_rendererAPI = new OpenGLRendererAPI;
+	std::unique_ptr<RendererAPI> RenderCommand::s_rendererAPI = std::make_unique<OpenGLRendererAPI>();
 
 }
