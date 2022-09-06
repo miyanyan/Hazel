@@ -4,12 +4,12 @@
 
 namespace Hazel {
 
-	ShaderProgram* ShaderProgram::create()
+	std::shared_ptr<ShaderProgram> ShaderProgram::create()
 	{
 		switch (Renderer::getAPI())
 		{
 		case RendererAPI::API::None:    return nullptr;
-		case RendererAPI::API::OpenGL:  return new OpenGLShaderProgram();
+		case RendererAPI::API::OpenGL:  return std::make_shared<OpenGLShaderProgram>();
 		}
 
 		return nullptr;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 #include "glm/glm.hpp"
 
@@ -31,7 +32,7 @@ namespace Hazel {
         virtual void setUniform(const char* name, const glm::mat3x4& val) const = 0;
         virtual void setUniform(const char* name, const glm::mat4x3& val) const = 0;
 
-        static ShaderProgram* create();
+        static std::shared_ptr<ShaderProgram> create();
 
 	};
 

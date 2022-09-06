@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "glad/glad.h"
 
@@ -118,7 +119,7 @@ namespace Hazel {
 		virtual void setLayout(const BufferLayout& layout) = 0;
 		virtual const BufferLayout& getLayout() = 0;
 
-		static VertexBuffer* create();
+		static std::shared_ptr<VertexBuffer> create();
 	};
 
 	class IndexBuffer
@@ -135,7 +136,7 @@ namespace Hazel {
 
 		virtual size_t getCount() const = 0;
 
-		static IndexBuffer* create();
+		static std::shared_ptr<IndexBuffer> create();
 	};
 
 }

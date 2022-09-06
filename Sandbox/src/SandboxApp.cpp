@@ -19,7 +19,7 @@ public:
 		};
 		unsigned int indices[3] = { 0, 1, 2 };
 
-		m_vertexBuffer.reset(Hazel::VertexBuffer::create());
+		m_vertexBuffer = Hazel::VertexBuffer::create();
 		m_vertexBuffer->allocate(vertices, sizeof(vertices));
 		m_vertexBuffer->setLayout(Hazel::BufferLayout({
 				{ Hazel::ShaderDataType::Float3, "a_Position" },
@@ -27,10 +27,10 @@ public:
 			})
 		);
 
-		m_indexBuffer.reset(Hazel::IndexBuffer::create());
+		m_indexBuffer = Hazel::IndexBuffer::create();
 		m_indexBuffer->allocate(indices, sizeof(indices), 3);
 
-		m_vertexArray.reset(Hazel::VertexArray::create());
+		m_vertexArray = Hazel::VertexArray::create();
 		m_vertexArray->addVertexBuffer(m_vertexBuffer);
 		m_vertexArray->setIndexBuffer(m_indexBuffer);
 
@@ -43,19 +43,17 @@ public:
 		};
 		uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
 
-		std::shared_ptr<Hazel::VertexBuffer> squareVBO;
-		squareVBO.reset(Hazel::VertexBuffer::create());
+		std::shared_ptr<Hazel::VertexBuffer> squareVBO = Hazel::VertexBuffer::create();
 		squareVBO->allocate(squareVertices, sizeof(squareVertices));
 		squareVBO->setLayout({
 			{ Hazel::ShaderDataType::Float3, "a_Position" },
 			{ Hazel::ShaderDataType::Float2, "a_TexCoord" }
 		});
 
-		std::shared_ptr<Hazel::IndexBuffer> squareIBO;
-		squareIBO.reset(Hazel::IndexBuffer::create());
+		std::shared_ptr<Hazel::IndexBuffer> squareIBO = Hazel::IndexBuffer::create();
 		squareIBO->allocate(squareIndices, sizeof(squareIndices), sizeof(squareIndices) / sizeof(uint32_t));
 
-		m_squareVAO.reset(Hazel::VertexArray::create());
+		m_squareVAO = Hazel::VertexArray::create();
 		m_squareVAO->addVertexBuffer(squareVBO);
 		m_squareVAO->setIndexBuffer(squareIBO);
 
@@ -95,7 +93,7 @@ public:
 			}
 		)";
 
-		m_shader.reset(Hazel::ShaderProgram::create());
+		m_shader = Hazel::ShaderProgram::create();
 		m_shader->addShaderFromSourceCode(Hazel::Shader::VERTEX, vertexSrc);
 		m_shader->addShaderFromSourceCode(Hazel::Shader::FRAGMENT, fragmentSrc);
 		m_shader->link();
@@ -133,13 +131,13 @@ public:
 			}
 		)";
 
-		m_flatColorShader.reset(Hazel::ShaderProgram::create());
+		m_flatColorShader = Hazel::ShaderProgram::create();
 		m_flatColorShader->addShaderFromSourceCode(Hazel::Shader::VERTEX, flatColorShaderVertexSrc);
 		m_flatColorShader->addShaderFromSourceCode(Hazel::Shader::FRAGMENT, flatColorShaderFragmentSrc);
 		m_flatColorShader->link();
 	
 		// texture shader
-		m_textureShader.reset(Hazel::ShaderProgram::create());
+		m_textureShader = Hazel::ShaderProgram::create();
 		m_textureShader->addShaderFromSourceFile(Hazel::Shader::VERTEX, "./assets/shaders/Texture.vert");
 		m_textureShader->addShaderFromSourceFile(Hazel::Shader::FRAGMENT, "./assets/shaders/Texture.frag");
 		m_textureShader->link();
@@ -147,8 +145,8 @@ public:
 		m_textureShader->bind();
 		m_textureShader->setUniform("u_Texture", 0);
 
-		m_texture.reset(Hazel::Texture2D::create("./assets/textures/Checkerboard.png"));
-		m_logoTexture.reset(Hazel::Texture2D::create("./assets/textures/ChernoLogo.png"));
+		m_texture = Hazel::Texture2D::create("./assets/textures/Checkerboard.png");
+		m_logoTexture = Hazel::Texture2D::create("./assets/textures/ChernoLogo.png");
     }
 	
 	void onUpdate(Hazel::Timestep ts) override {

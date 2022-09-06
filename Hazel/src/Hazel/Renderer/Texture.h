@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 namespace Hazel {
 	class Texture
 	{
@@ -15,6 +17,6 @@ namespace Hazel {
 	class Texture2D : public Texture
 	{
 	public:
-		static Texture2D* create(const char* path);
+		static std::shared_ptr<Texture2D> create(const char* path);
 	};
 }

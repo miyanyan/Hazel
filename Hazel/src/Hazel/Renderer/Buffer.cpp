@@ -4,23 +4,23 @@
 
 namespace Hazel {
 
-	VertexBuffer* VertexBuffer::create()
+	std::shared_ptr<VertexBuffer> VertexBuffer::create()
 	{
 		switch (Renderer::getAPI())
 		{
 		case RendererAPI::API::None:    return nullptr;
-		case RendererAPI::API::OpenGL:  return new OpenGLVertexBuffer();
+		case RendererAPI::API::OpenGL:  return std::make_shared<OpenGLVertexBuffer>();
 		}
 
 		return nullptr;
 	}
 
-	IndexBuffer* IndexBuffer::create()
+	std::shared_ptr<IndexBuffer> IndexBuffer::create()
 	{
 		switch (Renderer::getAPI())
 		{
 		case RendererAPI::API::None:    return nullptr;
-		case RendererAPI::API::OpenGL:  return new OpenGLIndexBuffer();
+		case RendererAPI::API::OpenGL:  return std::make_shared<OpenGLIndexBuffer>();
 		}
 
 		return nullptr;
