@@ -3,6 +3,7 @@
 #include "imgui.h"
 #include "Hazel.h"
 #include "Hazel/Utils/SourceLocation.h"
+#include "Hazel/Core/EntryPoint.h"
 
 class ExampleLayer : public Hazel::Layer
 {
