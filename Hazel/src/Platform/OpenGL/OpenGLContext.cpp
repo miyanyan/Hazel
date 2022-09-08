@@ -7,14 +7,14 @@
 
 namespace Hazel {
 
-	OpenglContext::OpenglContext(GLFWwindow* window)
+	OpenGLContext::OpenGLContext(GLFWwindow* window)
 		: m_windowHandle(window)
 	{
 		if (window == nullptr)
 			HZ_CORE_ERROR("Window handle is null!");
 	}
 
-	void OpenglContext::init()
+	void OpenGLContext::init()
 	{
 		glfwMakeContextCurrent(m_windowHandle);
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -34,7 +34,7 @@ namespace Hazel {
 		}
 	}
 
-	void OpenglContext::swapBuffers()
+	void OpenGLContext::swapBuffers()
 	{
 		glfwSwapBuffers(m_windowHandle);
 	}

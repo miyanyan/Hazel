@@ -6,10 +6,10 @@ class GLFWwindow;
 
 namespace Hazel {
 
-	class OpenglContext : public GraphicsContext
+	class OpenGLContext : public GraphicsContext
 	{
 	public:
-		OpenglContext(GLFWwindow* window);
+		OpenGLContext(GLFWwindow* window);
 
 		virtual void init() override;
 		virtual void swapBuffers() override;
