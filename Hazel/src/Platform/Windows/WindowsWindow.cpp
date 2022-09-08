@@ -6,7 +6,7 @@
 #include "Hazel/Events/KeyEvent.h"
 #include "Platform/OpenGL/OpenGLContext.h"
 
-#include "GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 
 namespace Hazel {
 

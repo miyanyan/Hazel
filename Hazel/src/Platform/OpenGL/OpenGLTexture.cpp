@@ -1,6 +1,6 @@
 #include "OpenGLTexture.h"
 
-#include "glad/glad.h"
+#include <glad/glad.h>
 
 #include "Hazel/Utils/stb_image_impl.h"
 #include "Hazel/Core/Log.h"
