@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <glad/glad.h>
+
 #include "Hazel/Renderer/Texture.h"
 
 namespace Hazel {
@@ -9,16 +11,20 @@ namespace Hazel {
 	{
 	public:
 		OpenGLTexture2D(const char* path);
+		OpenGLTexture2D(uint32_t width, uint32_t height);
 		virtual ~OpenGLTexture2D() override;
 
 		virtual int getWidth() const override;
 		virtual int getHeight() const override;
+
+		virtual void setData(void* data, uint32_t size) override;
 
 		virtual void bind(int num) const override;
 
 	private:
 		std::string m_path;
 		int m_width, m_height;
-		unsigned int m_textureId;
+		uint32_t m_textureId;
+		GLenum m_internalFormat, m_dataFormat;
 	};
 }
