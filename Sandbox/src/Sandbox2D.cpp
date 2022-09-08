@@ -6,12 +6,13 @@
 
 Sandbox2D::Sandbox2D()
 	: Layer("Sandbox2D")
-	, m_cameraController(1280.0f / 720.0f)
+	, m_cameraController(1280.0f / 720.0f, true)
 {
 }
 
 void Sandbox2D::onAttach()
 {
+	m_checkerBoardTexture = Hazel::Texture2D::create("assets/textures/Checkerboard.png");
 }
 
 void Sandbox2D::onDetach()
@@ -28,7 +29,9 @@ void Sandbox2D::onUpdate(Hazel::Timestep ts)
 	Hazel::RenderCommand::clear();
 
 	Hazel::Renderer2D::beginScene(m_cameraController.getCamera());
-	Hazel::Renderer2D::drawQuad({ 0.0f, 0.0f, }, { 1.0f, 1.0f }, m_squareColor);
+	Hazel::Renderer2D::drawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.8f, 0.2f, 0.3f, 1.0f });
+	Hazel::Renderer2D::drawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, m_squareColor);
+	Hazel::Renderer2D::drawQuad({ 0.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, m_checkerBoardTexture);
 	Hazel::Renderer2D::endScene();
 }
 
