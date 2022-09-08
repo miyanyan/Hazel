@@ -24,6 +24,8 @@ namespace Hazel {
 
 		virtual void drawIndexed(const std::shared_ptr<VertexArray>& vao) = 0;
 
+		static std::unique_ptr<RendererAPI> create();
+
 	private:
 		static API s_API;
 	};
