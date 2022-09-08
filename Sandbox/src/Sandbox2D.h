@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "Hazel.h"
 
 class Sandbox2D : public Hazel::Layer
@@ -23,4 +25,12 @@ private:
 	std::shared_ptr<Hazel::Texture2D> m_checkerBoardTexture;
 
 	glm::vec4 m_squareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
+
+	struct ProfileResult
+	{
+		std::string name;
+		double time;
+		ProfileResult(std::string&& name, double time) : name(std::move(name)), time(time) {}
+	};
+	std::vector<ProfileResult> m_profileResults;
 };
