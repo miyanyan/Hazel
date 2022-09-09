@@ -12,7 +12,7 @@ namespace Hazel {
 		virtual void setClearColor(const glm::vec4& color) override;
 		virtual void clear() override;
 
-		virtual void drawIndexed(const std::shared_ptr<VertexArray>& vao) override;
+		virtual void drawIndexed(const std::shared_ptr<VertexArray>& vao, uint32_t count = 0) override;
 	};
 
 }

@@ -27,9 +27,12 @@ namespace Hazel {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	void OpenGLRendererAPI::drawIndexed(const std::shared_ptr<VertexArray>& vao)
+	void OpenGLRendererAPI::drawIndexed(const std::shared_ptr<VertexArray>& vao, uint32_t count)
 	{
-		glDrawElements(GL_TRIANGLES, vao->getIndexBuffer()->getCount(), GL_UNSIGNED_INT, nullptr);
+		if (count == 0) {
+			count = vao->getIndexBuffer()->getCount();
+		}
+		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
 }

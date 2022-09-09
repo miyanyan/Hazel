@@ -29,9 +29,9 @@ namespace Hazel {
 			s_rendererAPI->clear();
 		}
 
-		inline static void drawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
+		inline static void drawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t count = 0)
 		{
-			s_rendererAPI->drawIndexed(vertexArray);
+			s_rendererAPI->drawIndexed(vertexArray, count);
 		}
 	private:
 		static std::unique_ptr<RendererAPI> s_rendererAPI;
