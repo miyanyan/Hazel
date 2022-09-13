@@ -8,65 +8,98 @@
 
 namespace Hazel {
 
-	struct Renderer2DStorage
+	struct QuadVertex
 	{
-		std::shared_ptr<VertexArray> quadVertexArray;
-		std::shared_ptr<ShaderProgram> textureShader;
-		std::shared_ptr<Texture2D> whiteTexture;
+		glm::vec3 position;
+		glm::vec4 color;
+		glm::vec2 texcoord;
 	};
 
-	static Renderer2DStorage* s_data;
+	struct Renderer2DStorage
+	{
+		static constexpr uint32_t maxQuads = 10000;
+		static constexpr uint32_t maxVertices = maxQuads * 4;
+		static constexpr uint32_t maxIndices = maxQuads * 6;
+
+		std::shared_ptr<VertexArray> quadVertexArray;
+		std::shared_ptr<VertexBuffer> quadVertexBuffer;
+		std::shared_ptr<ShaderProgram> textureShader;
+		std::shared_ptr<Texture2D> whiteTexture;
+
+		uint32_t quadIndexCount = 0;
+		QuadVertex* quadVertexBufferBase = nullptr;
+		QuadVertex* quadVertexBufferPtr = nullptr;
+	};
+
+	static Renderer2DStorage s_data;
 
 	void Renderer2D::init()
 	{
-		s_data = new Renderer2DStorage();
-		s_data->quadVertexArray = VertexArray::create();
+		s_data.quadVertexArray = VertexArray::create();
+		s_data.quadVertexBufferBase = new QuadVertex[s_data.maxVertices];
 
-		float squareVertices[5 * 4] = {
-			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-			 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-			 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
-			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f 
-		};
+		std::vector<uint32_t> quadIndices(s_data.maxIndices);
+		uint32_t offset = 0;
+		for (auto i = 0; i < s_data.maxIndices; i += 6) {
+			quadIndices[i + 0] = offset + 0;
+			quadIndices[i + 1] = offset + 1;
+			quadIndices[i + 2] = offset + 2;
 
-		auto squareVB = Hazel::VertexBuffer::create();
-		squareVB->allocate(squareVertices, sizeof(squareVertices));
-		squareVB->setLayout({
+			quadIndices[i + 3] = offset + 2;
+			quadIndices[i + 4] = offset + 3;
+			quadIndices[i + 5] = offset + 0;
+
+			offset += 4;
+		}
+
+		s_data.quadVertexBuffer = Hazel::VertexBuffer::create();
+		s_data.quadVertexBuffer->allocate(s_data.quadVertexBufferBase, s_data.maxVertices * sizeof(QuadVertex), GL_DYNAMIC_DRAW);
+		s_data.quadVertexBuffer->setLayout({
 			{ Hazel::ShaderDataType::Float3, "a_Position" },
+			{ Hazel::ShaderDataType::Float4, "a_Color" },
 			{ Hazel::ShaderDataType::Float2, "a_TexCoord" }
 		});
-		s_data->quadVertexArray->addVertexBuffer(squareVB);
+		s_data.quadVertexArray->addVertexBuffer(s_data.quadVertexBuffer);
 
-		uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
 		auto squareIB = Hazel::IndexBuffer::create();
-		squareIB->allocate(squareIndices, sizeof(squareIndices), 6);
-		s_data->quadVertexArray->setIndexBuffer(squareIB);
+		squareIB->allocate(quadIndices.data(), quadIndices.size() * sizeof(uint32_t), quadIndices.size());
+		s_data.quadVertexArray->setIndexBuffer(squareIB);
 
-		s_data->textureShader = Hazel::ShaderProgram::create();
-		s_data->textureShader->addShaderFromSourceFile(Hazel::Shader::VERTEX, "assets/shaders/Texture.vert");
-		s_data->textureShader->addShaderFromSourceFile(Hazel::Shader::FRAGMENT, "assets/shaders/Texture.frag");
-		s_data->textureShader->link();
+		s_data.textureShader = Hazel::ShaderProgram::create();
+		s_data.textureShader->addShaderFromSourceFile(Hazel::Shader::VERTEX, "assets/shaders/Texture.vert");
+		s_data.textureShader->addShaderFromSourceFile(Hazel::Shader::FRAGMENT, "assets/shaders/Texture.frag");
+		s_data.textureShader->link();
 
-		s_data->whiteTexture = Texture2D::create(1, 1);
+		s_data.whiteTexture = Texture2D::create(1, 1);
 		uint32_t whiteTextureData = 0xffffffff;
-		s_data->whiteTexture->setData(&whiteTextureData, sizeof(whiteTextureData));
+		s_data.whiteTexture->setData(&whiteTextureData, sizeof(whiteTextureData));
 	}
 
 	void Renderer2D::shutdown()
 	{
-		delete s_data;
-		s_data = nullptr;
 	}
 
 	void Renderer2D::beginScene(const OrthographicCamera& camera)
 	{
-		s_data->textureShader->bind();
-		s_data->textureShader->setUniform("u_ViewProjection", camera.getViewProjectionMatrix());
+		s_data.textureShader->bind();
+		s_data.textureShader->setUniform("u_ViewProjection", camera.getViewProjectionMatrix());
+
+		s_data.quadIndexCount = 0;
+		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
 	}
 
 	void Renderer2D::endScene()
 	{
+		uint32_t dataSize = (uint8_t*)s_data.quadVertexBufferPtr - (uint8_t*)s_data.quadVertexBufferBase;
+		s_data.quadVertexBuffer->write(s_data.quadVertexBufferBase, dataSize, 0);
 
+		flush();
+	}
+
+	void Renderer2D::flush()
+	{
+		s_data.quadVertexArray->bind();
+		RenderCommand::drawIndexed(s_data.quadVertexArray, s_data.quadIndexCount);
 	}
 
 	void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
@@ -76,16 +109,36 @@ namespace Hazel {
 
 	void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 	{
-		s_data->textureShader->setUniform("u_Color", color);
-		s_data->textureShader->setUniform("u_TilingFactor", 1.0f);
+		s_data.quadVertexBufferPtr->position = position;
+		s_data.quadVertexBufferPtr->color = color;
+		s_data.quadVertexBufferPtr->texcoord = { 0.0f, 0.0f };
+		s_data.quadVertexBufferPtr++;
 
-		s_data->whiteTexture->bind();
+		s_data.quadVertexBufferPtr->position = { position.x + size.x, position.y, 0.0f };
+		s_data.quadVertexBufferPtr->color = color;
+		s_data.quadVertexBufferPtr->texcoord = { 1.0f, 0.0f };
+		s_data.quadVertexBufferPtr++;
 
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-		s_data->textureShader->setUniform("u_Transform", transform);
+		s_data.quadVertexBufferPtr->position = { position.x + size.x, position.y + size.y, 0.0f };
+		s_data.quadVertexBufferPtr->color = color;
+		s_data.quadVertexBufferPtr->texcoord = { 1.0f, 1.0f };
+		s_data.quadVertexBufferPtr++;
 
-		s_data->quadVertexArray->bind();
-		RenderCommand::drawIndexed(s_data->quadVertexArray);
+		s_data.quadVertexBufferPtr->position = { position.x, position.y + size.y, 0.0f };
+		s_data.quadVertexBufferPtr->color = color;
+		s_data.quadVertexBufferPtr->texcoord = { 0.0f, 1.0f };
+		s_data.quadVertexBufferPtr++;
+
+		s_data.quadIndexCount += 6;
+
+		/*s_data.textureShader->setUniform("u_TilingFactor", 1.0f);
+		s_data.whiteTexture->bind();
+
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+							* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+		s_data.textureShader->setUniform("u_Transform", transform);
+		s_data.quadVertexArray->bind();
+		RenderCommand::drawIndexed(s_data.quadVertexArray);*/
 	}
 
 	void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
@@ -95,16 +148,16 @@ namespace Hazel {
 
 	void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
-		s_data->textureShader->setUniform("u_Color", tintColor);
-		s_data->textureShader->setUniform("u_TilingFactor", tilingFactor);
+		s_data.textureShader->setUniform("u_Color", tintColor);
+		s_data.textureShader->setUniform("u_TilingFactor", tilingFactor);
 
 		texture->bind();
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-		s_data->textureShader->setUniform("u_Transform", transform);
+		s_data.textureShader->setUniform("u_Transform", transform);
 
-		s_data->quadVertexArray->bind();
-		RenderCommand::drawIndexed(s_data->quadVertexArray);
+		s_data.quadVertexArray->bind();
+		RenderCommand::drawIndexed(s_data.quadVertexArray);
 	}
 
 	void Renderer2D::drawRotatedQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float rotation)
@@ -114,18 +167,18 @@ namespace Hazel {
 
 	void Renderer2D::drawRotatedQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, float rotation)
 	{
-		s_data->textureShader->setUniform("u_Color", color);
-		s_data->textureShader->setUniform("u_TilingFactor", 1.0f);
+		s_data.textureShader->setUniform("u_Color", color);
+		s_data.textureShader->setUniform("u_TilingFactor", 1.0f);
 
-		s_data->whiteTexture->bind();
+		s_data.whiteTexture->bind();
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) 
 							* glm::rotate(glm::mat4(1.0f), rotation, {0.0f, 0.0f, 1.0f})
 							* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-		s_data->textureShader->setUniform("u_Transform", transform);
+		s_data.textureShader->setUniform("u_Transform", transform);
 
-		s_data->quadVertexArray->bind();
-		RenderCommand::drawIndexed(s_data->quadVertexArray);
+		s_data.quadVertexArray->bind();
+		RenderCommand::drawIndexed(s_data.quadVertexArray);
 	}
 
 	void Renderer2D::drawRotatedQuad(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, float rotation, float tilingFactor, const glm::vec4& tintColor)
@@ -135,17 +188,17 @@ namespace Hazel {
 
 	void Renderer2D::drawRotatedQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, float rotation, float tilingFactor, const glm::vec4& tintColor)
 	{
-		s_data->textureShader->setUniform("u_Color", tintColor);
-		s_data->textureShader->setUniform("u_TilingFactor", tilingFactor);
+		s_data.textureShader->setUniform("u_Color", tintColor);
+		s_data.textureShader->setUniform("u_TilingFactor", tilingFactor);
 
 		texture->bind();
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 							* glm::rotate(glm::mat4(1.0f), rotation, { 0.0f, 0.0f, 1.0f })
 							* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-		s_data->textureShader->setUniform("u_Transform", transform);
+		s_data.textureShader->setUniform("u_Transform", transform);
 
-		s_data->quadVertexArray->bind();
-		RenderCommand::drawIndexed(s_data->quadVertexArray);
+		s_data.quadVertexArray->bind();
+		RenderCommand::drawIndexed(s_data.quadVertexArray);
 	}
 }
