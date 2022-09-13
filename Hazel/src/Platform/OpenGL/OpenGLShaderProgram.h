@@ -31,6 +31,7 @@ namespace Hazel {
 		virtual void setUniform(const char* name, glm::mat4x4 const& val) const override;
 		virtual void setUniform(const char* name, glm::mat4x3 const& val) const override;
 		virtual void setUniform(const char* name, glm::mat3x4 const& val) const override;
+		virtual void setUniform(const char* name, const std::vector<int>& val) const override;
 
 	public:
 		unsigned int programId;

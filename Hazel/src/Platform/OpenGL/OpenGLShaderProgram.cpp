@@ -117,4 +117,11 @@ namespace Hazel {
 		loc = glGetUniformLocation(programId, name);
 		glUniformMatrix3x4fv(loc, 1, GL_FALSE, glm::value_ptr(val));
 	}
+
+	void OpenGLShaderProgram::setUniform(const char* name, const std::vector<int>& val) const
+	{
+		GLuint loc;
+		loc = glGetUniformLocation(programId, name);
+		glUniform1iv(loc, val.size(), val.data());
+	}
 }

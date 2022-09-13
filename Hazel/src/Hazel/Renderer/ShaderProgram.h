@@ -2,6 +2,7 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 #include <glm/glm.hpp>
 
@@ -31,6 +32,7 @@ namespace Hazel {
         virtual void setUniform(const char* name, const glm::mat4x4& val) const = 0;
         virtual void setUniform(const char* name, const glm::mat3x4& val) const = 0;
         virtual void setUniform(const char* name, const glm::mat4x3& val) const = 0;
+        virtual void setUniform(const char* name, const std::vector<int>& val) const = 0;
 
         static std::shared_ptr<ShaderProgram> create();
 
