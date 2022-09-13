@@ -21,6 +21,8 @@ namespace Hazel {
 
 		virtual void bind(int num) const override;
 
+		virtual bool operator==(const Texture& other) const override;
+
 	private:
 		std::string m_path;
 		int m_width, m_height;

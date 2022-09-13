@@ -93,4 +93,9 @@ namespace Hazel {
 	{
 		glBindTextureUnit(num, m_textureId);
 	}
+
+	bool OpenGLTexture2D::operator==(const Texture& other) const
+	{
+		return m_textureId == static_cast<const OpenGLTexture2D&>(other).m_textureId;
+	}
 }
