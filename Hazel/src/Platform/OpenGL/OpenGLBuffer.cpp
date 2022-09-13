@@ -30,6 +30,11 @@ namespace Hazel {
 		glNamedBufferData(m_bufferId, dataSize, data, usage);
 	}
 
+	void OpenGLVertexBuffer::write(const void* data, size_t dataSize, size_t offset)
+	{
+		glNamedBufferSubData(m_bufferId, offset, dataSize, data);
+	}
+
 	GLuint OpenGLVertexBuffer::getBufferId() const
 	{
 		return m_bufferId;

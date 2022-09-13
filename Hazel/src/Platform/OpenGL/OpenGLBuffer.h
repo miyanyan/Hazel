@@ -14,6 +14,7 @@ namespace Hazel {
 		virtual void unbind() const override;
 
 		virtual void allocate(const void* data, size_t dataSize, GLuint usage) override;
+		virtual void write(const void* data, size_t dataSize, size_t offset) override;
 
 		virtual GLuint getBufferId() const override;
 
