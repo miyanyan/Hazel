@@ -25,6 +25,9 @@ void Sandbox2D::onDetach()
 
 void Sandbox2D::onUpdate(Hazel::Timestep ts)
 {
+	static float rotation = 0.0f;
+	rotation += ts * 50.0f;
+
 	Hazel::Timer timer;
 	// Update
 	m_cameraController.onUpdate(ts);
@@ -38,12 +41,11 @@ void Sandbox2D::onUpdate(Hazel::Timestep ts)
 	timer.reset();
 
 	Hazel::Renderer2D::beginScene(m_cameraController.getCamera());
-	//Hazel::Renderer2D::drawRotatedQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.8f, 0.2f, 0.3f, 1.0f }, glm::radians(-45.0f));
+	Hazel::Renderer2D::drawRotatedQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.8f, 0.2f, 0.3f, 1.0f }, -45.0f);
 	Hazel::Renderer2D::drawQuad({-1.0f, 0.0f}, {0.8f, 0.8f}, {0.8f, 0.2f, 0.3f, 1.0f});
 	Hazel::Renderer2D::drawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, m_squareColor);
-	//Hazel::Renderer2D::drawQuad({ 0.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, m_checkerBoardTexture, 10.0f);
-	Hazel::Renderer2D::drawQuad({ -5.0f, -5.0f, -0.1f }, { 10.0f, 10.0f }, m_checkerBoardTexture, 10.0f);
-	Hazel::Renderer2D::drawQuad({ -0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f }, m_checkerBoardTexture, 20.0f);
+	Hazel::Renderer2D::drawQuad({ 0.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, m_checkerBoardTexture, 10.0f);
+	Hazel::Renderer2D::drawRotatedQuad({ -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, m_checkerBoardTexture, rotation, 20.0f);
 	Hazel::Renderer2D::endScene();
 	m_profileResults.emplace_back("Renderer Draw:"s, timer.elapsed<std::chrono::microseconds>());
 	timer.reset();
