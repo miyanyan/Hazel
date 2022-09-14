@@ -2,6 +2,8 @@
 
 #include <glad/glad.h>
 
+#include "Hazel/Core/Log.h"
+
 namespace Hazel {
 
 	static GLenum shaderDataTypeToOpenGLBaseType(ShaderDataType type)
@@ -52,14 +54,48 @@ namespace Hazel {
 
 		auto& layout = vbo->getLayout();
 		for (const auto& element : layout) {
-			glEnableVertexArrayAttrib(m_vertexArrayId, m_vertexBufferIndex);
-			glVertexArrayAttribFormat(m_vertexArrayId, m_vertexBufferIndex,
-				element.getComponentCount(),
-				shaderDataTypeToOpenGLBaseType(element.type),
-				element.normalized ? GL_TRUE : GL_FALSE,
-				element.offset);
-			glVertexArrayAttribBinding(m_vertexArrayId, m_vertexBufferIndex, bindingindex);
-			m_vertexBufferIndex++;
+			switch (element.type)
+			{
+				case ShaderDataType::Float:
+				case ShaderDataType::Float2:
+				case ShaderDataType::Float3:
+				case ShaderDataType::Float4:
+				case ShaderDataType::Int:
+				case ShaderDataType::Int2:
+				case ShaderDataType::Int3:
+				case ShaderDataType::Int4:
+				case ShaderDataType::Bool:
+				{
+					glEnableVertexArrayAttrib(m_vertexArrayId, m_vertexBufferIndex);
+					glVertexArrayAttribFormat(m_vertexArrayId, m_vertexBufferIndex,
+						element.getComponentCount(),
+						shaderDataTypeToOpenGLBaseType(element.type),
+						element.normalized ? GL_TRUE : GL_FALSE,
+						element.offset);
+					glVertexArrayAttribBinding(m_vertexArrayId, m_vertexBufferIndex, bindingindex);
+					m_vertexBufferIndex++;
+					break;
+				}
+				case ShaderDataType::Mat3:
+				case ShaderDataType::Mat4:
+				{
+					auto count = element.getComponentCount();
+					for (auto i = 0; i < count; ++i) {
+						glEnableVertexArrayAttrib(m_vertexArrayId, m_vertexBufferIndex);
+						glVertexArrayAttribFormat(m_vertexArrayId, m_vertexBufferIndex,
+							count,
+							shaderDataTypeToOpenGLBaseType(element.type),
+							element.normalized ? GL_TRUE : GL_FALSE,
+							element.offset + i * count);
+						glVertexArrayAttribBinding(m_vertexArrayId, m_vertexBufferIndex, bindingindex);
+						m_vertexBufferIndex++;
+					}
+					break;
+				}
+				default:
+					HZ_CORE_ERROR("Unknown ShaderDataType!");
+			}
+			
 		}
 
 		glVertexArrayVertexBuffer(m_vertexArrayId, bindingindex, vbo->getBufferId(), 0, layout.getStride());
