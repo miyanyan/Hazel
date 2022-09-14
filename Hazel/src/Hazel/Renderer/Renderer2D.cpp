@@ -31,8 +31,8 @@ namespace Hazel {
 		std::shared_ptr<Texture2D> whiteTexture;
 
 		uint32_t quadIndexCount = 0;
-		QuadVertex* quadVertexBufferBase = nullptr;
-		QuadVertex* quadVertexBufferPtr = nullptr;
+		std::vector<QuadVertex> quadVertexBuffers;
+		std::vector<QuadVertex>::iterator quadVertexBufferPtr;
 
 		std::array<std::shared_ptr<Texture2D>, maxtextureSlots> textureSlots;
 		uint32_t textureSlotIndex = 1; // 0 = white texture
@@ -47,7 +47,7 @@ namespace Hazel {
 	void Renderer2D::init()
 	{
 		s_data.quadVertexArray = VertexArray::create();
-		s_data.quadVertexBufferBase = new QuadVertex[s_data.maxVertices];
+		s_data.quadVertexBuffers.resize(s_data.maxVertices);
 
 		std::vector<uint32_t> quadIndices(s_data.maxIndices);
 		uint32_t offset = 0;
@@ -64,7 +64,7 @@ namespace Hazel {
 		}
 
 		s_data.quadVertexBuffer = Hazel::VertexBuffer::create();
-		s_data.quadVertexBuffer->allocate(s_data.quadVertexBufferBase, s_data.maxVertices * sizeof(QuadVertex), GL_DYNAMIC_DRAW);
+		s_data.quadVertexBuffer->allocate(s_data.quadVertexBuffers.data(), s_data.quadVertexBuffers.size() * sizeof(QuadVertex), GL_DYNAMIC_DRAW);
 		s_data.quadVertexBuffer->setLayout({
 			{ Hazel::ShaderDataType::Float3, "a_position" },
 			{ Hazel::ShaderDataType::Float4, "a_color" },
@@ -113,21 +113,24 @@ namespace Hazel {
 		s_data.textureShader->setUniform("u_ViewProjection", camera.getViewProjectionMatrix());
 
 		s_data.quadIndexCount = 0;
-		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
+		s_data.quadVertexBufferPtr = s_data.quadVertexBuffers.begin();
 
 		s_data.textureSlotIndex = 1;
 	}
 
 	void Renderer2D::endScene()
 	{
-		uint32_t dataSize = (uint8_t*)s_data.quadVertexBufferPtr - (uint8_t*)s_data.quadVertexBufferBase;
-		s_data.quadVertexBuffer->write(s_data.quadVertexBufferBase, dataSize, 0);
+		size_t dataSize = s_data.quadIndexCount * sizeof(QuadVertex);
+		s_data.quadVertexBuffer->write(s_data.quadVertexBuffers.data(), dataSize, 0);
 
 		flush();
 	}
 
 	void Renderer2D::flush()
 	{
+		if (s_data.quadIndexCount == 0) {
+			return; // nothing to draw
+		}
 		for (auto i = 0; i < s_data.textureSlotIndex; ++i) {
 			s_data.textureSlots[i]->bind(i);
 		}
@@ -141,7 +144,7 @@ namespace Hazel {
 		endScene();
 
 		s_data.quadIndexCount = 0;
-		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
+		s_data.quadVertexBufferPtr = s_data.quadVertexBuffers.begin();
 
 		s_data.textureSlotIndex = 1;
 	}
