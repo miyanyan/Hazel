@@ -48,8 +48,6 @@ void Sandbox2D::onUpdate(Hazel::Timestep ts)
 	Hazel::Renderer2D::drawQuad({ 0.0f, 0.0f, -0.1f }, { 20.0f, 20.0f }, m_checkerBoardTexture, 10.0f);
 	Hazel::Renderer2D::drawRotatedQuad({ -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, m_checkerBoardTexture, rotation, 20.0f);
 	Hazel::Renderer2D::endScene();
-	m_profileResults.emplace_back("Renderer Draw:"s, timer.elapsed<std::chrono::microseconds>());
-	timer.reset();
 
 	Hazel::Renderer2D::beginScene(m_cameraController.getCamera());
 	for (float y = -5.0f; y < 5.0f; y += 0.5f)
@@ -61,6 +59,9 @@ void Sandbox2D::onUpdate(Hazel::Timestep ts)
 		}
 	}
 	Hazel::Renderer2D::endScene();
+
+	m_profileResults.emplace_back("Renderer Draw:"s, timer.elapsed<std::chrono::microseconds>());
+	timer.reset();
 }
 
 void Sandbox2D::onImGuiRender()
