@@ -51,8 +51,11 @@ namespace Hazel {
 		ImGui::DestroyContext();
 	}
 
-	void ImGuiLayer::onImGuiRender()
+	void ImGuiLayer::onEvent(Event& e)
 	{
+		auto& io = ImGui::GetIO();
+		e.isHandled |= e.isInCategory(EventCategory::EventCategoryMouse) & io.WantCaptureMouse;
+		e.isHandled |= e.isInCategory(EventCategory::EventCategoryKeyboard) & io.WantCaptureKeyboard;
 	}
 
 	void ImGuiLayer::begin() 

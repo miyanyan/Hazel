@@ -113,10 +113,10 @@ namespace Hazel {
 		dispatcher.dispatch<WindowResizeEvent>([this](WindowResizeEvent& e) {return onWindowResize(e); });
 
 		for (auto it = m_layerStack.rbegin(); it != m_layerStack.rend(); ++it) {
-			(*it)->onEvent(e);
 			if (e.isHandled) {
 				break;
 			}
+			(*it)->onEvent(e);
 		}
 	}
 
