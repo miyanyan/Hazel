@@ -210,6 +210,9 @@ namespace Hazel {
 		}
 
 		if (textureIndex == 0.0f) {
+			if (s_data.textureSlotIndex >= Renderer2DStorage::maxtextureSlots) {
+				flushAndReset();
+			}
 			textureIndex = (float)s_data.textureSlotIndex;
 			s_data.textureSlots[s_data.textureSlotIndex] = texture;
 			s_data.textureSlotIndex++;
@@ -301,6 +304,9 @@ namespace Hazel {
 		}
 
 		if (textureIndex == 0.0f) {
+			if (s_data.textureSlotIndex >= Renderer2DStorage::maxtextureSlots) {
+				flushAndReset();
+			}
 			textureIndex = (float)s_data.textureSlotIndex;
 			s_data.textureSlots[s_data.textureSlotIndex] = texture;
 			s_data.textureSlotIndex++;
