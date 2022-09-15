@@ -21,6 +21,8 @@ namespace Hazel {
 		void pushLayer(Layer* layer);
 		void pushOverlay(Layer* layer);
 
+		void close();
+
 		Window& getWindow();
 		static Application& get();
 

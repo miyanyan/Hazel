@@ -143,6 +143,11 @@ namespace Hazel {
 		m_layerStack.pushOverlay(layer);
 	}
 
+	void Application::close()
+	{
+		m_running = false;
+	}
+
 	Window& Application::getWindow()
 	{
 		return *m_window;
