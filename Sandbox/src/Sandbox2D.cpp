@@ -17,6 +17,10 @@ Sandbox2D::Sandbox2D()
 void Sandbox2D::onAttach()
 {
 	m_checkerBoardTexture = Hazel::Texture2D::create("assets/textures/Checkerboard.png");
+
+	Hazel::FramebufferSpecification fbspec(1280, 720);
+
+	m_framebuffer = Hazel::Framebuffer::create(fbspec);
 }
 
 void Sandbox2D::onDetach()
@@ -36,6 +40,7 @@ void Sandbox2D::onUpdate(Hazel::Timestep ts)
 
 	// Render
 	Hazel::Renderer2D::resetStats();
+	m_framebuffer->bind();
 	Hazel::RenderCommand::setClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 	Hazel::RenderCommand::clear();
 	m_profileResults.emplace_back("Renderer Prep:"s, timer.elapsed<std::chrono::microseconds>());
@@ -49,6 +54,9 @@ void Sandbox2D::onUpdate(Hazel::Timestep ts)
 	Hazel::Renderer2D::drawRotatedQuad({ -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, m_checkerBoardTexture, rotation, 20.0f, m_squareColor);
 	Hazel::Renderer2D::endScene();
 
+	m_profileResults.emplace_back("Renderer Draw1:"s, timer.elapsed<std::chrono::microseconds>());
+	timer.reset();
+
 	Hazel::Renderer2D::beginScene(m_cameraController.getCamera());
 	for (float y = -5.0f; y < 5.0f; y += 0.5f)
 	{
@@ -59,14 +67,15 @@ void Sandbox2D::onUpdate(Hazel::Timestep ts)
 		}
 	}
 	Hazel::Renderer2D::endScene();
+	m_framebuffer->unbind();
 
-	m_profileResults.emplace_back("Renderer Draw:"s, timer.elapsed<std::chrono::microseconds>());
+	m_profileResults.emplace_back("Renderer Draw2:"s, timer.elapsed<std::chrono::microseconds>());
 	timer.reset();
 }
 
 void Sandbox2D::onImGuiRender()
 {
-	static bool dockingEnabled = false;
+	static bool dockingEnabled = true;
 	if (dockingEnabled) {
 		static bool dockspaceOpen = true;
 		static bool opt_fullscreen_persistant = true;
@@ -141,8 +150,8 @@ void Sandbox2D::onImGuiRender()
 		}
 		m_profileResults.clear();
 
-		uint32_t textureID = m_checkerBoardTexture->getRendererId();
-		ImGui::Image((void*)textureID, ImVec2{ 256.0f, 256.0f });
+		uint32_t textureID = m_framebuffer->getColorAttachmentRendererId();
+		ImGui::Image((void*)textureID, ImVec2{ 1280, 720 });
 		ImGui::End();
 
 		ImGui::End();
@@ -166,7 +175,7 @@ void Sandbox2D::onImGuiRender()
 		m_profileResults.clear();
 
 		uint32_t textureID = m_checkerBoardTexture->getRendererId();
-		ImGui::Image((void*)textureID, ImVec2{ 256.0f, 256.0f });
+		ImGui::Image((void*)textureID, ImVec2{ 256, 256 });
 		ImGui::End();
 	}
 }
