@@ -21,6 +21,8 @@ namespace Hazel {
 
 		virtual void bind(int num) const override;
 
+		virtual uint32_t getRendererId() const override;
+
 		virtual bool operator==(const Texture& other) const override;
 
 	private:
