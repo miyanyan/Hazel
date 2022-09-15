@@ -1,5 +1,6 @@
 #include "OpenGLBuffer.h"
 
+#include "Hazel/Utils/CheckOpenGL.h"
 
 namespace Hazel {
 
@@ -7,32 +8,32 @@ namespace Hazel {
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer()
 	{
-		glCreateBuffers(1, &m_bufferId);
+		CHECK_GL(glCreateBuffers(1, &m_bufferId));
 	}
 
 	OpenGLVertexBuffer::~OpenGLVertexBuffer()
 	{
-		glDeleteBuffers(1, &m_bufferId);
+		CHECK_GL(glDeleteBuffers(1, &m_bufferId));
 	}
 
 	void OpenGLVertexBuffer::bind() const
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, m_bufferId);
+		CHECK_GL(glBindBuffer(GL_ARRAY_BUFFER, m_bufferId));
 	}
 
 	void OpenGLVertexBuffer::unbind() const
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		CHECK_GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
 
 	void OpenGLVertexBuffer::allocate(const void* data, size_t dataSize, GLuint usage)
 	{
-		glNamedBufferData(m_bufferId, dataSize, data, usage);
+		CHECK_GL(glNamedBufferData(m_bufferId, dataSize, data, usage));
 	}
 
 	void OpenGLVertexBuffer::write(const void* data, size_t dataSize, size_t offset)
 	{
-		glNamedBufferSubData(m_bufferId, offset, dataSize, data);
+		CHECK_GL(glNamedBufferSubData(m_bufferId, offset, dataSize, data));
 	}
 
 	GLuint OpenGLVertexBuffer::getBufferId() const
@@ -55,28 +56,28 @@ namespace Hazel {
 	OpenGLIndexBuffer::OpenGLIndexBuffer()
 		: m_indexCount(0)
 	{
-		glCreateBuffers(1, &m_bufferId);
+		CHECK_GL(glCreateBuffers(1, &m_bufferId));
 	}
 
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()
 	{
-		glDeleteBuffers(1, &m_bufferId);
+		CHECK_GL(glDeleteBuffers(1, &m_bufferId));
 	}
 
 	void OpenGLIndexBuffer::bind() const
 	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufferId);
+		CHECK_GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufferId));
 	}
 
 	void OpenGLIndexBuffer::unbind() const
 	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		CHECK_GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 	}
 
 	void OpenGLIndexBuffer::allocate(const void* data, size_t dataSize, size_t indexCount, GLuint usage)
 	{
 		m_indexCount = indexCount;
-		glNamedBufferData(m_bufferId, dataSize, data, usage);
+		CHECK_GL(glNamedBufferData(m_bufferId, dataSize, data, usage));
 	}
 
 	GLuint OpenGLIndexBuffer::getBufferId() const

@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 
+#include "Hazel/Utils/CheckOpenGL.h"
 #include "Hazel/Core/Log.h"
 
 namespace Hazel {
@@ -29,22 +30,22 @@ namespace Hazel {
 	OpenGLVertexArray::OpenGLVertexArray()
 		: m_vertexBufferIndex(0)
 	{
-		glCreateVertexArrays(1, &m_vertexArrayId);
+		CHECK_GL(glCreateVertexArrays(1, &m_vertexArrayId));
 	}
 
 	OpenGLVertexArray::~OpenGLVertexArray()
 	{
-		glDeleteVertexArrays(1, &m_vertexArrayId);
+		CHECK_GL(glDeleteVertexArrays(1, &m_vertexArrayId));
 	}
 
 	void OpenGLVertexArray::bind() const
 	{
-		glBindVertexArray(m_vertexArrayId);
+		CHECK_GL(glBindVertexArray(m_vertexArrayId));
 	}
 
 	void OpenGLVertexArray::unbind() const
 	{
-		glBindVertexArray(0);
+		CHECK_GL(glBindVertexArray(0));
 	}
 
 	void OpenGLVertexArray::addVertexBuffer(std::shared_ptr<VertexBuffer>& vbo)
@@ -66,13 +67,13 @@ namespace Hazel {
 				case ShaderDataType::Int4:
 				case ShaderDataType::Bool:
 				{
-					glEnableVertexArrayAttrib(m_vertexArrayId, m_vertexBufferIndex);
-					glVertexArrayAttribFormat(m_vertexArrayId, m_vertexBufferIndex,
+					CHECK_GL(glEnableVertexArrayAttrib(m_vertexArrayId, m_vertexBufferIndex));
+					CHECK_GL(glVertexArrayAttribFormat(m_vertexArrayId, m_vertexBufferIndex,
 						element.getComponentCount(),
 						shaderDataTypeToOpenGLBaseType(element.type),
 						element.normalized ? GL_TRUE : GL_FALSE,
-						element.offset);
-					glVertexArrayAttribBinding(m_vertexArrayId, m_vertexBufferIndex, bindingindex);
+						element.offset));
+					CHECK_GL(glVertexArrayAttribBinding(m_vertexArrayId, m_vertexBufferIndex, bindingindex));
 					m_vertexBufferIndex++;
 					break;
 				}
@@ -81,13 +82,13 @@ namespace Hazel {
 				{
 					auto count = element.getComponentCount();
 					for (auto i = 0; i < count; ++i) {
-						glEnableVertexArrayAttrib(m_vertexArrayId, m_vertexBufferIndex);
-						glVertexArrayAttribFormat(m_vertexArrayId, m_vertexBufferIndex,
+						CHECK_GL(glEnableVertexArrayAttrib(m_vertexArrayId, m_vertexBufferIndex));
+						CHECK_GL(glVertexArrayAttribFormat(m_vertexArrayId, m_vertexBufferIndex,
 							count,
 							shaderDataTypeToOpenGLBaseType(element.type),
 							element.normalized ? GL_TRUE : GL_FALSE,
-							element.offset + i * count);
-						glVertexArrayAttribBinding(m_vertexArrayId, m_vertexBufferIndex, bindingindex);
+							element.offset + i * count));
+						CHECK_GL(glVertexArrayAttribBinding(m_vertexArrayId, m_vertexBufferIndex, bindingindex));
 						m_vertexBufferIndex++;
 					}
 					break;
@@ -98,14 +99,14 @@ namespace Hazel {
 			
 		}
 
-		glVertexArrayVertexBuffer(m_vertexArrayId, bindingindex, vbo->getBufferId(), 0, layout.getStride());
+		CHECK_GL(glVertexArrayVertexBuffer(m_vertexArrayId, bindingindex, vbo->getBufferId(), 0, layout.getStride()));
 
 		m_vertexBuffers.push_back(vbo);
 	}
 
 	void OpenGLVertexArray::setIndexBuffer(std::shared_ptr<IndexBuffer>& ibo)
 	{
-		glVertexArrayElementBuffer(m_vertexArrayId, ibo->getBufferId());
+		CHECK_GL(glVertexArrayElementBuffer(m_vertexArrayId, ibo->getBufferId()));
 		m_indexBuffer = ibo;
 	}
 
