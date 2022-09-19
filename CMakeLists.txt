@@ -20,6 +20,7 @@ project ("Hazel")
 
 add_subdirectory ("Hazel")
 add_subdirectory ("Sandbox")
+add_subdirectory ("HazelInut")
 
 add_custom_target(COPY_ASSETS 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets

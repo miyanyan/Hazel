@@ -54,6 +54,12 @@ namespace Hazel {
 		dispatcher.dispatch<WindowResizeEvent>([this](WindowResizeEvent& e) {return onWindowResized(e); });
 	}
 
+	void OrthographicCameraController::onResize(float width, float height)
+	{
+		m_aspectRation = width / height;
+		m_camera.setProjection(-m_aspectRation * m_zoom, m_aspectRation * m_zoom, -m_zoom, m_zoom);
+	}
+
 	OrthographicCamera& OrthographicCameraController::getCamera()
 	{
 		return m_camera;
@@ -74,8 +80,7 @@ namespace Hazel {
 
 	bool OrthographicCameraController::onWindowResized(WindowResizeEvent& e)
 	{
-		m_aspectRation = e.getWidth() * 1.0f / e.getHeight();
-		m_camera.setProjection(-m_aspectRation * m_zoom, m_aspectRation * m_zoom, -m_zoom, m_zoom);
+		onResize(e.getWidth(), e.getHeight());
 		return false;
 	}
 
