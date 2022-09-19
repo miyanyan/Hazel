@@ -62,10 +62,10 @@ namespace Hazel {
 	}
 
 	Application* Application::s_instance = nullptr;
-	Application::Application()
+	Application::Application(const std::string& name)
 	{
 		s_instance = this;
-		m_window = std::make_unique<WindowsWindow>();
+		m_window = std::make_unique<WindowsWindow>(WindowProps(name));
 		Window::EventCallbackFn fn = [this](Event& e) {onEvent(e); };
 		m_window->setEventCallback(fn);
 
