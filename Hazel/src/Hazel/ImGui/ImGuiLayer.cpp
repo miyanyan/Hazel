@@ -53,6 +53,10 @@ namespace Hazel {
 
 	void ImGuiLayer::onEvent(Event& e)
 	{
+		if (m_isBlocked) {
+			return;
+		}
+
 		auto& io = ImGui::GetIO();
 		e.isHandled |= e.isInCategory(EventCategory::EventCategoryMouse) & io.WantCaptureMouse;
 		e.isHandled |= e.isInCategory(EventCategory::EventCategoryKeyboard) & io.WantCaptureKeyboard;
@@ -82,6 +86,11 @@ namespace Hazel {
 			ImGui::RenderPlatformWindowsDefault();
 			glfwMakeContextCurrent(backup_current_context);
 		}
+	}
+
+	void ImGuiLayer::blockEvents(bool block)
+	{
+		m_isBlocked = block;
 	}
 
 }

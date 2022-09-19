@@ -148,6 +148,11 @@ namespace Hazel {
 		m_running = false;
 	}
 
+	ImGuiLayer* Application::getImGuiLayer()
+	{
+		return m_imguiLayer;
+	}
+
 	Window& Application::getWindow()
 	{
 		return *m_window;

@@ -19,11 +19,14 @@ namespace Hazel {
 		virtual void onDetach() override;
 		virtual void onEvent(Event& e) override;
 
+		void blockEvents(bool block);
+
 		void begin();
 		void end();
 
 	private:
 		float m_Time = 0.0f;
+		bool m_isBlocked = true;
 	};
 
 }

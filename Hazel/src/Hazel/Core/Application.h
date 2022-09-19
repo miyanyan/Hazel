@@ -23,6 +23,8 @@ namespace Hazel {
 
 		void close();
 
+		ImGuiLayer* getImGuiLayer();
+
 		Window& getWindow();
 		static Application& get();
 
