@@ -27,6 +27,14 @@ namespace Hazel {
 
 	void EditorLayer::onUpdate(Hazel::Timestep ts)
 	{
+		// Resize
+		if (Hazel::FramebufferSpecification spec = m_framebuffer->getSpecification();
+			m_viewportSize.x > 0.0f && m_viewportSize.y > 0.0f && // zero sized framebuffer is invalid
+			(spec.width != m_viewportSize.x || spec.height != m_viewportSize.y)) {
+			m_framebuffer->resize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
+			m_cameraController.onResize(m_viewportSize.x, m_viewportSize.y);
+		}
+
 		static float rotation = 0.0f;
 		rotation += ts * 50.0f;
 
@@ -162,13 +170,8 @@ namespace Hazel {
 		Application::get().getImGuiLayer()->blockEvents(m_viewportFocused || !m_viewportHovered);
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		if (m_viewportSize != *((glm::vec2*)&viewportPanelSize))
-		{
-			m_framebuffer->resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
-			m_viewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+		m_viewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 
-			m_cameraController.onResize(viewportPanelSize.x, viewportPanelSize.y);
-		}
 		uint32_t textureID = m_framebuffer->getColorAttachmentRendererId();
 		ImGui::Image((void*)textureID, ImVec2{ m_viewportSize.x, m_viewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 		ImGui::End();
