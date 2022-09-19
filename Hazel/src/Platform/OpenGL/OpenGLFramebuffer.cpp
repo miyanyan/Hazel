@@ -9,7 +9,28 @@ namespace Hazel {
 
 	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
 		: m_specification(spec)
+		, m_framebufferId(0)
+		, m_colorAttachment(0)
+		, m_depthAttachment(0)
 	{
+		invalidate();
+	}
+
+	OpenGLFramebuffer::~OpenGLFramebuffer()
+	{
+		CHECK_GL(glDeleteFramebuffers(1, &m_framebufferId));
+		CHECK_GL(glDeleteTextures(1, &m_colorAttachment));
+		CHECK_GL(glDeleteTextures(1, &m_depthAttachment));
+	}
+
+	void OpenGLFramebuffer::invalidate()
+	{
+		if (m_framebufferId) {
+			CHECK_GL(glDeleteFramebuffers(1, &m_framebufferId));
+			CHECK_GL(glDeleteTextures(1, &m_colorAttachment));
+			CHECK_GL(glDeleteTextures(1, &m_depthAttachment));
+		}
+
 		CHECK_GL(glCreateFramebuffers(1, &m_framebufferId));
 
 		// color attachment
@@ -30,21 +51,23 @@ namespace Hazel {
 		}
 	}
 
-	OpenGLFramebuffer::~OpenGLFramebuffer()
-	{
-		CHECK_GL(glDeleteFramebuffers(1, &m_framebufferId));
-		CHECK_GL(glDeleteTextures(1, &m_colorAttachment));
-		CHECK_GL(glDeleteTextures(1, &m_depthAttachment));
-	}
-
 	void OpenGLFramebuffer::bind()
 	{
-		CHECK_GL(glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferId));
+		CHECK_GL(glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferId)); 
+		glViewport(0, 0, m_specification.width, m_specification.height);
 	}
 
 	void OpenGLFramebuffer::unbind()
 	{
 		CHECK_GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+	}
+
+	void OpenGLFramebuffer::resize(uint32_t width, uint32_t height)
+	{
+		m_specification.width = width;
+		m_specification.height = height;
+
+		invalidate();
 	}
 
 	uint32_t OpenGLFramebuffer::getColorAttachmentRendererId() const
