@@ -5,6 +5,7 @@ Learn game engine from [Hazel](https://github.com/TheCherno/Hazel)
 
 ## install
 ```
+vcpkg install entt
 vcpkg install spdlog
 vcpkg install glad
 vcpkg install glfw3

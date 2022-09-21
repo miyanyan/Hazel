@@ -19,6 +19,11 @@ namespace Hazel {
 
 		Hazel::FramebufferSpecification fbSpec(1280, 720);
 		m_framebuffer = Hazel::Framebuffer::create(fbSpec);
+
+		m_activeScene = std::make_shared<Hazel::Scene>();
+		m_squareEntity = m_activeScene->createEntity();
+		m_activeScene->reg().emplace<Hazel::TransformComponent>(m_squareEntity);
+		m_activeScene->reg().emplace<Hazel::SpriteRendererComponent>(m_squareEntity, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 	}
 
 	void EditorLayer::onDetach()
@@ -55,28 +60,12 @@ namespace Hazel {
 		timer.reset();
 
 		Hazel::Renderer2D::beginScene(m_cameraController.getCamera());
-		Hazel::Renderer2D::drawRotatedQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.8f, 0.2f, 0.3f, 1.0f }, -45.0f);
-		Hazel::Renderer2D::drawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.8f, 0.2f, 0.3f, 1.0f });
-		Hazel::Renderer2D::drawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, m_squareColor);
-		Hazel::Renderer2D::drawQuad({ 0.0f, 0.0f, -0.1f }, { 20.0f, 20.0f }, m_checkerboardTexture, 10.0f);
-		Hazel::Renderer2D::drawRotatedQuad({ -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, m_checkerboardTexture, rotation, 20.0f, m_squareColor);
-		Hazel::Renderer2D::endScene();
+		// scene
+		m_activeScene->onUpdate(ts);
 
-		m_profileResults.emplace_back(std::string("Renderer Draw1:"), timer.elapsed<std::chrono::microseconds>());
-		timer.reset();
-
-		Hazel::Renderer2D::beginScene(m_cameraController.getCamera());
-		for (float y = -5.0f; y < 5.0f; y += 0.5f)
-		{
-			for (float x = -5.0f; x < 5.0f; x += 0.5f)
-			{
-				glm::vec4 color = { (x + 5.0f) / 10.0f, 0.4f, (y + 5.0f) / 10.0f, 0.7f };
-				Hazel::Renderer2D::drawQuad({ x, y }, { 0.45f, 0.45f }, color);
-			}
-		}
 		Hazel::Renderer2D::endScene();
 		m_framebuffer->unbind();
-		m_profileResults.emplace_back(std::string("Renderer Draw2:"), timer.elapsed<std::chrono::microseconds>());
+		m_profileResults.emplace_back(std::string("Renderer Draw:"), timer.elapsed<std::chrono::microseconds>());
 		timer.reset();
 	}
 
@@ -158,7 +147,8 @@ namespace Hazel {
 		}
 		m_profileResults.clear();
 
-		ImGui::ColorEdit4("Square Color", glm::value_ptr(m_squareColor));
+		auto& squareColor = m_activeScene->reg().get<Hazel::SpriteRendererComponent>(m_squareEntity).color;
+		ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
 
 		ImGui::End();
 

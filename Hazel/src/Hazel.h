@@ -2,12 +2,16 @@
 
 #include "Hazel/Core/Timestep.h"
 #include "Hazel/Core/Layer.h"
-#include "Hazel/ImGui/ImGuiLayer.h"
 #include "Hazel/Core/Application.h"
 #include "Hazel/Core/Log.h"
 #include "Hazel/Core/Input.h"
 #include "Hazel/Core/KeyCodes.h"
 #include "Hazel/Core/MouseButtonCodes.h"
+
+#include "Hazel/ImGui/ImGuiLayer.h"
+
+#include "Hazel/Scene/Components.h"
+#include "Hazel/Scene/Scene.h"
 
 #include "Hazel/Renderer/Renderer.h"
 #include "Hazel/Renderer/Renderer2D.h"
