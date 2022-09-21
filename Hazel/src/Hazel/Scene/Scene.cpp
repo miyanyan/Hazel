@@ -7,6 +7,8 @@
 namespace Hazel {
 
 	Scene::Scene()
+		: m_viewportWidth(0)
+		, m_viewportHeight(0)
 	{
 
 	}
@@ -33,9 +35,9 @@ namespace Hazel {
 		glm::mat4* cameraTransform;
 
 		{
-			auto group = m_registry.view<TransformComponent, CameraComponent>();
-			for (const auto& entity : group) {
-				auto& [transform, camera] = group.get<TransformComponent, CameraComponent>(entity);
+			auto view = m_registry.view<TransformComponent, CameraComponent>();
+			for (const auto& entity : view) {
+				auto& [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
 				if (camera.primary) {
 					mainCamera = &camera.camera;
 					cameraTransform = &transform.transform;
@@ -54,6 +56,20 @@ namespace Hazel {
 			}
 
 			Renderer2D::endScene();
+		}
+	}
+
+	void Scene::onViewResize(uint32_t width, uint32_t height)
+	{
+		m_viewportWidth = width;
+		m_viewportHeight = height;
+
+		auto view = m_registry.view<TransformComponent, CameraComponent>();
+		for (const auto& entity : view) {
+			auto& camera = view.get<CameraComponent>(entity);
+			if (!camera.fixedAspectRatio) {
+				camera.camera.setViewportSize(width, height);
+			}
 		}
 	}
 

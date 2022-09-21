@@ -26,10 +26,10 @@ namespace Hazel {
 		m_squareEntity.addComponent<Hazel::SpriteRendererComponent>(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
 		m_cameraEntity = m_activeScene->createEntity("Camera Entity");
-		m_cameraEntity.addComponent<Hazel::CameraComponent>(glm::ortho(-16.0f, 16.0f, -9.0f, 9.0f, -1.0f, 1.0f));
+		m_cameraEntity.addComponent<Hazel::CameraComponent>();
 
 		m_secondCamera = m_activeScene->createEntity("Clip-Space Entity");
-		auto& cc = m_secondCamera.addComponent<CameraComponent>(glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f));
+		auto& cc = m_secondCamera.addComponent<CameraComponent>();
 		cc.primary = false;
 	}
 
@@ -45,6 +45,7 @@ namespace Hazel {
 			(spec.width != m_viewportSize.x || spec.height != m_viewportSize.y)) {
 			m_framebuffer->resize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
 			m_cameraController.onResize(m_viewportSize.x, m_viewportSize.y);
+			m_activeScene->onViewResize(m_viewportSize.x, m_viewportSize.y);
 		}
 
 		static float rotation = 0.0f;
@@ -168,6 +169,10 @@ namespace Hazel {
 			m_secondCamera.getComponent<CameraComponent>().primary = !m_primaryCamera;
 		}
 
+		auto& camera = m_secondCamera.getComponent<Hazel::CameraComponent>().camera;
+		float orthoSize = camera.getOrthographicSize();
+		if (ImGui::DragFloat("Second Camera Ortho Size", &orthoSize))
+			camera.setOrthographicSize(orthoSize);
 
 		ImGui::End();
 
