@@ -21,8 +21,16 @@ namespace Hazel {
 		m_framebuffer = Hazel::Framebuffer::create(fbSpec);
 
 		m_activeScene = std::make_shared<Hazel::Scene>();
+
 		m_squareEntity = m_activeScene->createEntity("Green Square");
 		m_squareEntity.addComponent<Hazel::SpriteRendererComponent>(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+
+		m_cameraEntity = m_activeScene->createEntity("Camera Entity");
+		m_cameraEntity.addComponent<Hazel::CameraComponent>(glm::ortho(-16.0f, 16.0f, -9.0f, 9.0f, -1.0f, 1.0f));
+
+		m_secondCamera = m_activeScene->createEntity("Clip-Space Entity");
+		auto& cc = m_secondCamera.addComponent<CameraComponent>(glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f));
+		cc.primary = false;
 	}
 
 	void EditorLayer::onDetach()
@@ -58,11 +66,9 @@ namespace Hazel {
 		m_profileResults.emplace_back(std::string("Renderer Prep:"), timer.elapsed<std::chrono::microseconds>());
 		timer.reset();
 
-		Hazel::Renderer2D::beginScene(m_cameraController.getCamera());
 		// scene
 		m_activeScene->onUpdate(ts);
 
-		Hazel::Renderer2D::endScene();
 		m_framebuffer->unbind();
 		m_profileResults.emplace_back(std::string("Renderer Draw:"), timer.elapsed<std::chrono::microseconds>());
 		timer.reset();
@@ -153,6 +159,15 @@ namespace Hazel {
 		auto& squareColor = m_squareEntity.getComponent<Hazel::SpriteRendererComponent>().color;
 		ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
 		ImGui::Separator();
+
+		ImGui::DragFloat3("Camera Transform", glm::value_ptr(m_cameraEntity.getComponent<TransformComponent>().transform[3]));
+
+		if (ImGui::Checkbox("Camera A", &m_primaryCamera))
+		{
+			m_cameraEntity.getComponent<CameraComponent>().primary = m_primaryCamera;
+			m_secondCamera.getComponent<CameraComponent>().primary = !m_primaryCamera;
+		}
+
 
 		ImGui::End();
 

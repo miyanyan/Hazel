@@ -24,6 +24,9 @@ namespace Hazel {
 		std::shared_ptr<Framebuffer> m_framebuffer;
 		std::shared_ptr<Scene> m_activeScene;
 		Entity m_squareEntity;
+		Entity m_cameraEntity;
+		Entity m_secondCamera;
+		bool m_primaryCamera = true;
 
 		std::shared_ptr<Texture2D> m_checkerboardTexture;
 

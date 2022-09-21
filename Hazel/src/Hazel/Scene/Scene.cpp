@@ -29,10 +29,31 @@ namespace Hazel {
 
 	void Scene::onUpdate(Timestep ts)
 	{
-		auto group = m_registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-		for (const auto& entity : group) {
-			auto& [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-			Renderer2D::drawQuad(transform.transform, sprite.color);
+		Camera* mainCamera = nullptr;
+		glm::mat4* cameraTransform;
+
+		{
+			auto group = m_registry.view<TransformComponent, CameraComponent>();
+			for (const auto& entity : group) {
+				auto& [transform, camera] = group.get<TransformComponent, CameraComponent>(entity);
+				if (camera.primary) {
+					mainCamera = &camera.camera;
+					cameraTransform = &transform.transform;
+					break;
+				}
+			}
+		}
+
+		if (mainCamera) {
+			Renderer2D::beginScene(mainCamera->getProjection(), *cameraTransform);
+
+			auto group = m_registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+			for (const auto& entity : group) {
+				auto& [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+				Renderer2D::drawQuad(transform.transform, sprite.color);
+			}
+
+			Renderer2D::endScene();
 		}
 	}
 

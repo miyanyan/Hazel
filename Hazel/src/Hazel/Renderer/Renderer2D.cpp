@@ -128,6 +128,19 @@ namespace Hazel {
 		s_data.textureSlotIndex = 1;
 	}
 
+	void Renderer2D::beginScene(const Camera& camera, const glm::mat4& transform)
+	{
+		auto viewProject = camera.getProjection() * glm::inverse(transform);
+
+		s_data.textureShader->bind();
+		s_data.textureShader->setUniform("u_ViewProjection", viewProject);
+
+		s_data.quadIndexCount = 0;
+		s_data.quadVertexBufferPtr = s_data.quadVertexBuffers.begin();
+
+		s_data.textureSlotIndex = 1;
+	}
+
 	void Renderer2D::endScene()
 	{
 		size_t dataSize = s_data.quadIndexCount * sizeof(QuadVertex);
