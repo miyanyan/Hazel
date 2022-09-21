@@ -6,20 +6,22 @@
 
 namespace Hazel {
 
+	class Entity;
+
 	class Scene
 	{
 	public:
 		Scene();
 		~Scene();
 
-		entt::entity createEntity();
-
-		entt::registry& reg();
+		Entity createEntity(const std::string& name = std::string());
 
 		void onUpdate(Timestep ts);
 
 	private:
 		entt::registry m_registry;
+
+		friend class Entity;
 	};
 
 }

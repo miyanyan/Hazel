@@ -21,9 +21,8 @@ namespace Hazel {
 		m_framebuffer = Hazel::Framebuffer::create(fbSpec);
 
 		m_activeScene = std::make_shared<Hazel::Scene>();
-		m_squareEntity = m_activeScene->createEntity();
-		m_activeScene->reg().emplace<Hazel::TransformComponent>(m_squareEntity);
-		m_activeScene->reg().emplace<Hazel::SpriteRendererComponent>(m_squareEntity, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+		m_squareEntity = m_activeScene->createEntity("Green Square");
+		m_squareEntity.addComponent<Hazel::SpriteRendererComponent>(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 	}
 
 	void EditorLayer::onDetach()
@@ -147,8 +146,13 @@ namespace Hazel {
 		}
 		m_profileResults.clear();
 
-		auto& squareColor = m_activeScene->reg().get<Hazel::SpriteRendererComponent>(m_squareEntity).color;
+		ImGui::Separator();
+		auto& tag = m_squareEntity.getComponent<Hazel::TagComponent>().tag;
+		ImGui::Text("%s", tag.c_str());
+
+		auto& squareColor = m_squareEntity.getComponent<Hazel::SpriteRendererComponent>().color;
 		ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
+		ImGui::Separator();
 
 		ImGui::End();
 

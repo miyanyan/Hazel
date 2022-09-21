@@ -12,6 +12,7 @@
 
 #include "Hazel/Scene/Components.h"
 #include "Hazel/Scene/Scene.h"
+#include "Hazel/Scene/Entity.h"
 
 #include "Hazel/Renderer/Renderer.h"
 #include "Hazel/Renderer/Renderer2D.h"

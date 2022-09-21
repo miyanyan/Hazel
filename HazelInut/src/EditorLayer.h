@@ -23,7 +23,7 @@ namespace Hazel {
 		std::shared_ptr<Shader> m_flatColorShader;
 		std::shared_ptr<Framebuffer> m_framebuffer;
 		std::shared_ptr<Scene> m_activeScene;
-		entt::entity m_squareEntity;
+		Entity m_squareEntity;
 
 		std::shared_ptr<Texture2D> m_checkerboardTexture;
 
