@@ -1,8 +1,14 @@
 #pragma once
 
+#include <functional>
+#include <memory>
+#include <type_traits>
+#include <typeinfo>
+
 #include <glm/glm.hpp>
 
 #include "Hazel/Scene/SceneCamera.h"
+#include "Hazel/Scene/ScriptableEntity.h"
 
 namespace Hazel {
 
@@ -47,5 +53,21 @@ namespace Hazel {
 		SceneCamera camera;
 		bool primary = true;
 		bool fixedAspectRatio = false;
+	};
+
+	struct NativeScriptComponent
+	{
+		std::unique_ptr<ScriptableEntity> instance;
+
+		std::function<void()> instantiateFunction;
+
+		template<typename T>
+		void bind()
+		{
+			static_assert(std::is_base_of_v<ScriptableEntity, T>, "T must derived from ScriptableEntity");
+			instantiateFunction = [&]() {
+				instance = std::make_unique<T>();
+			};
+		}
 	};
 }

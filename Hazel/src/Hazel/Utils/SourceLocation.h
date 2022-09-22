@@ -90,7 +90,7 @@ namespace Hazel {
 
 #endif
 
-    std::string getFileDir(const std::string& file) {
+    inline std::string getFileDir(const std::string& file) {
         std::string newfile = file;
         int pos = newfile.find("\\");
         while (pos != newfile.npos) {

@@ -31,6 +31,35 @@ namespace Hazel {
 		m_secondCamera = m_activeScene->createEntity("Clip-Space Entity");
 		auto& cc = m_secondCamera.addComponent<CameraComponent>();
 		cc.primary = false;
+
+		// camera script
+		class CameraController : public ScriptableEntity
+		{
+		public:
+			void onCreate() override
+			{
+				auto& transform = getComponent<TransformComponent>().transform;
+				transform[3][0] = rand() % 10 - 5.0f;
+			}
+
+			void onUpdate(Timestep ts) override
+			{
+				auto& transform = getComponent<TransformComponent>().transform;
+				float speed = 5.0f;
+
+				if (Input::isKeyPressed(HZ_KEY_A))
+					transform[3][0] -= speed * ts;
+				if (Input::isKeyPressed(HZ_KEY_D))
+					transform[3][0] += speed * ts;
+				if (Input::isKeyPressed(HZ_KEY_W))
+					transform[3][1] += speed * ts;
+				if (Input::isKeyPressed(HZ_KEY_S))
+					transform[3][1] -= speed * ts;
+			}
+		};
+
+		m_cameraEntity.addComponent<NativeScriptComponent>().bind<CameraController>();
+		m_secondCamera.addComponent<NativeScriptComponent>().bind<CameraController>();
 	}
 
 	void EditorLayer::onDetach()
