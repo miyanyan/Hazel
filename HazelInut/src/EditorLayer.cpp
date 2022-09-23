@@ -60,6 +60,8 @@ namespace Hazel {
 
 		m_cameraEntity.addComponent<NativeScriptComponent>().bind<CameraController>();
 		m_secondCamera.addComponent<NativeScriptComponent>().bind<CameraController>();
+
+		m_sceneHierarchyPanel.setContext(m_activeScene);
 	}
 
 	void EditorLayer::onDetach()
@@ -166,6 +168,8 @@ namespace Hazel {
 
 			ImGui::EndMenuBar();
 		}
+
+		m_sceneHierarchyPanel.onImGuiRender();
 
 		ImGui::Begin("Settings");
 
