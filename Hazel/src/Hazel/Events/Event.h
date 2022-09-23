@@ -68,7 +68,7 @@ namespace Hazel {
 			if (m_event.getEventType() != T::getStaticType()) {
 				return false;
 			}
-			m_event.isHandled = func(*(T*)&m_event);
+			m_event.isHandled |= func(*(T*)&m_event);
 			return true;
 		}
 
