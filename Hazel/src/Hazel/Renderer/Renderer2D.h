@@ -46,7 +46,8 @@ namespace Hazel {
 		static Statistics getStats();
 	
 	private:
-		static void flushAndReset();
+		static void startBatch();
+		static void nextBatch();
 	};
 
 }
