@@ -7,34 +7,24 @@
 #include "Hazel/Core/Core.h"
 
 namespace Hazel {
-	enum class EventType
+	enum EventType
 	{
-		None = 0,
+		EventTypeNone = 0,
 		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
 		AppTick, AppUpdate, AppRender,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 	};
 
-	enum class EventCategory
+	enum EventCategory
 	{
-		None = 0,
+		EventCategoryNone = 0,
 		EventCategoryApplication = BIT(0),
 		EventCategoryInput = BIT(1),
 		EventCategoryKeyboard = BIT(2),
 		EventCategoryMouse = BIT(3),
 		EventCategoryMouseButton = BIT(4)
 	};
-
-	inline int operator&(EventCategory lhs, EventCategory rhs)
-	{
-		return static_cast<int>(lhs) & static_cast<int>(rhs);
-	}
-
-	inline int operator|(EventCategory lhs, EventCategory rhs)
-	{
-		return static_cast<int>(lhs) | static_cast<int>(rhs);
-	}
 
 #define EVENT_CLASS_TYPE(type) static EventType getStaticType() { return EventType::type; }\
 								virtual EventType getEventType() const override { return getStaticType(); }\
