@@ -28,10 +28,10 @@ namespace Hazel {
 		auto redSquare = m_activeScene->createEntity("Red Square");
 		redSquare.addComponent<Hazel::SpriteRendererComponent>(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
-		m_cameraEntity = m_activeScene->createEntity("Camera Entity");
+		m_cameraEntity = m_activeScene->createEntity("Camera A");
 		m_cameraEntity.addComponent<Hazel::CameraComponent>();
 
-		m_secondCamera = m_activeScene->createEntity("Clip-Space Entity");
+		m_secondCamera = m_activeScene->createEntity("Camera B");
 		auto& cc = m_secondCamera.addComponent<CameraComponent>();
 		cc.primary = false;
 
@@ -174,7 +174,7 @@ namespace Hazel {
 
 		m_sceneHierarchyPanel.onImGuiRender();
 
-		ImGui::Begin("Settings");
+		ImGui::Begin("Stats");
 
 		auto stats = Hazel::Renderer2D::getStats();
 		ImGui::Text("Renderer2D Stats:");
@@ -188,27 +188,6 @@ namespace Hazel {
 			ImGui::Text(label.c_str(), time);
 		}
 		m_profileResults.clear();
-
-		ImGui::Separator();
-		auto& tag = m_squareEntity.getComponent<Hazel::TagComponent>().tag;
-		ImGui::Text("%s", tag.c_str());
-
-		auto& squareColor = m_squareEntity.getComponent<Hazel::SpriteRendererComponent>().color;
-		ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
-		ImGui::Separator();
-
-		ImGui::DragFloat3("Camera Transform", glm::value_ptr(m_cameraEntity.getComponent<TransformComponent>().transform[3]));
-
-		if (ImGui::Checkbox("Camera A", &m_primaryCamera))
-		{
-			m_cameraEntity.getComponent<CameraComponent>().primary = m_primaryCamera;
-			m_secondCamera.getComponent<CameraComponent>().primary = !m_primaryCamera;
-		}
-
-		auto& camera = m_secondCamera.getComponent<Hazel::CameraComponent>().camera;
-		float orthoSize = camera.getOrthographicSize();
-		if (ImGui::DragFloat("Second Camera Ortho Size", &orthoSize))
-			camera.setOrthographicSize(orthoSize);
 
 		ImGui::End();
 
