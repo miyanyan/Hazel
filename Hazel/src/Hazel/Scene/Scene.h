@@ -15,9 +15,14 @@ namespace Hazel {
 		~Scene();
 
 		Entity createEntity(const std::string& name = std::string());
+		void destroyEntity(Entity& entity);
 
 		void onUpdate(Timestep ts);
 		void onViewResize(uint32_t width, uint32_t height);
+
+	private:
+		template<typename T>
+		void onComponentAdded(Entity& entity, T& component);
 
 	private:
 		entt::registry m_registry;

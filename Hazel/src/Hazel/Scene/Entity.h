@@ -18,7 +18,9 @@ namespace Hazel {
 		template<typename T, typename... Args>
 		T& addComponent(Args&&... args)
 		{
-			return m_scene->m_registry.emplace<T>(m_entity, std::forward<Args>(args)...);
+			T& component = m_scene->m_registry.emplace<T>(m_entity, std::forward<Args>(args)...);
+			m_scene->onComponentAdded<T>(*this, component);
+			return component;
 		}
 
 		template<typename T>
@@ -41,6 +43,7 @@ namespace Hazel {
 
 		operator bool() const { return m_entity != entt::null; }
 		operator uint32_t() const { return (uint32_t)m_entity; }
+		operator entt::entity() const{ return m_entity; }
 
 		bool operator==(const Entity& other) const
 		{
