@@ -206,12 +206,22 @@ namespace Hazel {
 
 		if (ImGui::BeginPopup("AddComponent")) {
 			if (ImGui::MenuItem("Camera")) {
-				m_selectionContext.addComponent<CameraComponent>();
+				if (!m_selectionContext.hasComponent<CameraComponent>()) {
+					m_selectionContext.addComponent<CameraComponent>();
+				}
+				else {
+					HZ_CORE_WARN("This entity already has the Camera Component!");
+				}
 				ImGui::CloseCurrentPopup();
 			}
 
 			if (ImGui::MenuItem("Sprite Renderer")) {
-				m_selectionContext.addComponent<SpriteRendererComponent>();
+				if (!m_selectionContext.hasComponent<SpriteRendererComponent>()) {
+					m_selectionContext.addComponent<SpriteRendererComponent>();
+				}
+				else {
+					HZ_CORE_WARN("This entity already has the Sprite Renderer Component!");
+				}
 				ImGui::CloseCurrentPopup();
 			}
 
