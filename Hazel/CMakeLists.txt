@@ -6,6 +6,7 @@ find_package (glfw3 REQUIRED)
 find_package (imgui REQUIRED)
 find_package (glm REQUIRED)
 find_package (EnTT REQUIRED)
+find_package (yaml-cpp REQUIRED)
 
 file (GLOB_RECURSE source CONFIGURE_DEPENDS src/*.h src/*.cpp)
 
@@ -21,4 +22,5 @@ target_link_libraries (${PROJECT_NAME} PUBLIC
 	imgui::imgui
 	glm::glm
 	EnTT::EnTT
+	yaml-cpp
 )

@@ -3,8 +3,10 @@
 #include <imgui.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <nfd.h>
 
 #include "Hazel/Utils/Timer.h"
+#include "Hazel/Scene/SceneSerializer.h"
 
 namespace Hazel {
 
@@ -21,7 +23,7 @@ namespace Hazel {
 		m_framebuffer = Hazel::Framebuffer::create(fbSpec);
 
 		m_activeScene = std::make_shared<Hazel::Scene>();
-
+#if 1
 		m_squareEntity = m_activeScene->createEntity("Green Square");
 		m_squareEntity.addComponent<Hazel::SpriteRendererComponent>(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
@@ -63,7 +65,7 @@ namespace Hazel {
 
 		m_cameraEntity.addComponent<NativeScriptComponent>().bind<CameraController>();
 		m_secondCamera.addComponent<NativeScriptComponent>().bind<CameraController>();
-
+#endif
 		m_sceneHierarchyPanel.setContext(m_activeScene);
 	}
 
@@ -165,6 +167,18 @@ namespace Hazel {
 				// which we can't undo at the moment without finer window depth/z control.
 				//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
 
+				if (ImGui::MenuItem("New", "Ctrl+N")) {
+					newScene();
+				}
+
+				if (ImGui::MenuItem("Open...", "Ctrl+O")) {
+					openScene();
+				}
+
+				if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S")) {
+					saveSceneAs();
+				}
+
 				if (ImGui::MenuItem("Exit")) Hazel::Application::get().close();
 				ImGui::EndMenu();
 			}
@@ -212,6 +226,75 @@ namespace Hazel {
 	void EditorLayer::onEvent(Hazel::Event& e)
 	{
 		m_cameraController.onEvent(e);
+
+		EventDispatcher dispatcher(e);
+		dispatcher.dispatch<KeyPressedEvent>([this](KeyPressedEvent& e) {return onKeyPressed(e); });
+	}
+
+	bool EditorLayer::onKeyPressed(KeyPressedEvent& e)
+	{
+		// Shortcuts
+		if (e.getRepeatCount() > 0)
+			return false;
+
+		bool control = Input::isKeyPressed(HZ_KEY_LEFT_CONTROL) || Input::isKeyPressed(HZ_KEY_RIGHT_CONTROL);
+		bool shift = Input::isKeyPressed(HZ_KEY_LEFT_SHIFT) || Input::isKeyPressed(HZ_KEY_RIGHT_SHIFT);
+		switch (e.getKeyCode())
+		{
+		case HZ_KEY_N:
+		{
+			if (control)
+				newScene();
+
+			break;
+		}
+		case HZ_KEY_O:
+		{
+			if (control)
+				openScene();
+
+			break;
+		}
+		case HZ_KEY_S:
+		{
+			if (control && shift)
+				saveSceneAs();
+
+			break;
+		}
+		}
+	}
+
+	void EditorLayer::newScene()
+	{
+		m_activeScene = std::make_shared<Scene>();
+		m_activeScene->onViewResize(m_viewportSize.x, m_viewportSize.y);
+		m_sceneHierarchyPanel.setContext(m_activeScene);
+	}
+
+	void EditorLayer::openScene()
+	{
+		nfdchar_t* filepath = nullptr;
+		nfdresult_t result = NFD_OpenDialog("hazel", nullptr, &filepath);
+		if (result == NFD_OKAY) {
+			m_activeScene = std::make_shared<Scene>();
+			m_activeScene->onViewResize(m_viewportSize.x, m_viewportSize.y);
+			m_sceneHierarchyPanel.setContext(m_activeScene);
+
+			SceneSerializer serializer(m_activeScene);
+			serializer.deserialize(filepath);
+		}
+	}
+
+	void EditorLayer::saveSceneAs()
+	{
+		nfdchar_t* filepath = nullptr;
+		nfdresult_t result = NFD_SaveDialog("hazel", nullptr, &filepath);
+		if (result == NFD_OKAY) {
+			SceneSerializer serializer(m_activeScene);
+			std::string path = std::string(filepath) + ".hazel";
+			serializer.serialize(path.c_str());
+		}
 	}
 
 }

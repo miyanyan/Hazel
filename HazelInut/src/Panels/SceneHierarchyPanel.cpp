@@ -16,6 +16,7 @@ namespace Hazel {
 	void SceneHierarchyPanel::setContext(const std::shared_ptr<Scene>& scene)
 	{
 		m_context = scene;
+		m_selectionContext = {};
 	}
 
 	void SceneHierarchyPanel::onImGuiRender()

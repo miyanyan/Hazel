@@ -1,5 +1,7 @@
 project (HazelInut)
 
+find_package(unofficial-nativefiledialog CONFIG REQUIRED)
+
 add_executable (${PROJECT_NAME} 
 	src/HazelnutApp.cpp 
 	src/EditorLayer.h 
@@ -9,3 +11,4 @@ add_executable (${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} Hazel)
+target_link_libraries(${PROJECT_NAME} unofficial::nativefiledialog::nfd)

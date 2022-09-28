@@ -5,6 +5,8 @@ Learn game engine from [Hazel](https://github.com/TheCherno/Hazel)
 
 ## install
 ```
+vcpkg install nativefiledialog
+vcpkg install yaml-cpp
 vcpkg install entt
 vcpkg install spdlog
 vcpkg install glad
