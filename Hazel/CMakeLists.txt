@@ -4,6 +4,7 @@ find_package (spdlog REQUIRED)
 find_package (glad REQUIRED)
 find_package (glfw3 REQUIRED)
 find_package (imgui REQUIRED)
+find_package (imguizmo REQUIRED)
 find_package (glm REQUIRED)
 find_package (EnTT REQUIRED)
 find_package (yaml-cpp REQUIRED)
@@ -20,6 +21,7 @@ target_link_libraries (${PROJECT_NAME} PUBLIC
 	glad::glad 
 	glfw
 	imgui::imgui
+	imguizmo::imguizmo
 	glm::glm
 	EnTT::EnTT
 	yaml-cpp

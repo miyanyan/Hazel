@@ -42,6 +42,8 @@ namespace Hazel {
 		
 		glm::vec4 m_squareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 
+		int m_gizmoType = -1;
+
 		// panels
 		SceneHierarchyPanel m_sceneHierarchyPanel;
 		

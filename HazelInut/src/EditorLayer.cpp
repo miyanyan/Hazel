@@ -1,10 +1,12 @@
 #include "EditorLayer.h"
 
 #include <imgui.h>
+#include <ImGuizmo.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <nfd.h>
 
+#include "Hazel/Utils/Math.h"
 #include "Hazel/Utils/Timer.h"
 #include "Hazel/Scene/SceneSerializer.h"
 
@@ -217,6 +219,48 @@ namespace Hazel {
 
 		uint32_t textureID = m_framebuffer->getColorAttachmentRendererId();
 		ImGui::Image((void*)textureID, ImVec2{ m_viewportSize.x, m_viewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+		// gizmos
+		Entity selectEntity = m_sceneHierarchyPanel.getSelectedEntity();
+		if (selectEntity && m_gizmoType != -1) {
+			ImGuizmo::SetOrthographic(false);
+			ImGuizmo::SetDrawlist();
+
+			float width = ImGui::GetWindowWidth();
+			float height = ImGui::GetWindowHeight();
+			float posx = ImGui::GetWindowPos().x;
+			float posy = ImGui::GetWindowPos().y;
+			ImGuizmo::SetRect(posx, posy, width, height);
+
+			// camera
+			auto cameraEntity = m_activeScene->getPrimaryCameraEntity();
+			const auto& camera = cameraEntity.getComponent<CameraComponent>().camera;
+			const auto& cameraProjection = camera.getProjection();
+			glm::mat4 cameraView = glm::inverse(cameraEntity.getComponent<TransformComponent>().getTransform());
+
+			// entity transform
+			auto& tc = selectEntity.getComponent<TransformComponent>();
+			glm::mat4 transform = tc.getTransform();
+
+			// snapping
+			bool snap = Input::isKeyPressed(HZ_KEY_LEFT_CONTROL);
+			float snapValue = m_gizmoType == ImGuizmo::OPERATION::ROTATE ? 45.0f : 0.5f; // 0.5m for translation/scale, 45 degree for rotation
+			float snapValues[] = { snapValue, snapValue, snapValue };
+
+			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+				(ImGuizmo::OPERATION)m_gizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
+				nullptr, snap ? snapValues : nullptr);
+
+			if (ImGuizmo::IsUsing()) {
+				glm::vec3 translation, scale, rotation;
+				if (Math::decomposeTransform(transform, translation, rotation, scale)) {
+					tc.translation = translation;
+					tc.rotation = rotation;
+					tc.scale = scale;
+				}
+			}
+		}
+
 		ImGui::End();
 		ImGui::PopStyleVar();
 
@@ -241,27 +285,39 @@ namespace Hazel {
 		bool shift = Input::isKeyPressed(HZ_KEY_LEFT_SHIFT) || Input::isKeyPressed(HZ_KEY_RIGHT_SHIFT);
 		switch (e.getKeyCode())
 		{
-		case HZ_KEY_N:
-		{
-			if (control)
-				newScene();
+			case HZ_KEY_N:
+			{
+				if (control)
+					newScene();
 
-			break;
-		}
-		case HZ_KEY_O:
-		{
-			if (control)
-				openScene();
+				break;
+			}
+			case HZ_KEY_O:
+			{
+				if (control)
+					openScene();
 
-			break;
-		}
-		case HZ_KEY_S:
-		{
-			if (control && shift)
-				saveSceneAs();
+				break;
+			}
+			case HZ_KEY_S:
+			{
+				if (control && shift)
+					saveSceneAs();
 
-			break;
-		}
+				break;
+			}
+			case HZ_KEY_Q:
+				m_gizmoType = -1;
+				break;
+			case HZ_KEY_W:
+				m_gizmoType = ImGuizmo::OPERATION::TRANSLATE;
+				break;
+			case HZ_KEY_E:
+				m_gizmoType = ImGuizmo::OPERATION::ROTATE;
+				break;
+			case HZ_KEY_R:
+				m_gizmoType = ImGuizmo::OPERATION::SCALE;
+				break;
 		}
 	}
 
