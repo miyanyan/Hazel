@@ -135,6 +135,16 @@ namespace Hazel {
 		startBatch();
 	}
 
+	void Renderer2D::beginScene(const EditorCamera& camera)
+	{
+		auto viewproj = camera.getViewProjection();
+
+		s_data.textureShader->bind();
+		s_data.textureShader->setUniform("u_ViewProjection", viewproj);
+
+		startBatch();
+	}
+
 	void Renderer2D::endScene()
 	{
 		flush();

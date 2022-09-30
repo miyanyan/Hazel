@@ -25,7 +25,9 @@ namespace Hazel {
 		m_framebuffer = Hazel::Framebuffer::create(fbSpec);
 
 		m_activeScene = std::make_shared<Hazel::Scene>();
-#if 1
+
+		m_editorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
+#if 0
 		m_squareEntity = m_activeScene->createEntity("Green Square");
 		m_squareEntity.addComponent<Hazel::SpriteRendererComponent>(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
@@ -83,6 +85,7 @@ namespace Hazel {
 			(spec.width != m_viewportSize.x || spec.height != m_viewportSize.y)) {
 			m_framebuffer->resize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
 			m_cameraController.onResize(m_viewportSize.x, m_viewportSize.y);
+			m_editorCamera.setViewportSize(m_viewportSize.x, m_viewportSize.y);
 			m_activeScene->onViewResize(m_viewportSize.x, m_viewportSize.y);
 		}
 
@@ -94,6 +97,7 @@ namespace Hazel {
 		if (m_viewportFocused) {
 			m_cameraController.onUpdate(ts);
 		}
+		m_editorCamera.onUpdate(ts);
 		m_profileResults.emplace_back(std::string("CameraController::OnUpdate:"), timer.elapsed<std::chrono::microseconds>());
 		timer.reset();
 
@@ -106,7 +110,7 @@ namespace Hazel {
 		timer.reset();
 
 		// scene
-		m_activeScene->onUpdate(ts);
+		m_activeScene->onUpdateEditor(ts, m_editorCamera);
 
 		m_framebuffer->unbind();
 		m_profileResults.emplace_back(std::string("Renderer Draw:"), timer.elapsed<std::chrono::microseconds>());
@@ -233,10 +237,8 @@ namespace Hazel {
 			ImGuizmo::SetRect(posx, posy, width, height);
 
 			// camera
-			auto cameraEntity = m_activeScene->getPrimaryCameraEntity();
-			const auto& camera = cameraEntity.getComponent<CameraComponent>().camera;
-			const auto& cameraProjection = camera.getProjection();
-			glm::mat4 cameraView = glm::inverse(cameraEntity.getComponent<TransformComponent>().getTransform());
+			const auto& cameraProjection = m_editorCamera.getProjection();
+			glm::mat4 cameraView = m_editorCamera.getViewMatrix();
 
 			// entity transform
 			auto& tc = selectEntity.getComponent<TransformComponent>();
@@ -270,6 +272,7 @@ namespace Hazel {
 	void EditorLayer::onEvent(Hazel::Event& e)
 	{
 		m_cameraController.onEvent(e);
+		m_editorCamera.onEvent(e);
 
 		EventDispatcher dispatcher(e);
 		dispatcher.dispatch<KeyPressedEvent>([this](KeyPressedEvent& e) {return onKeyPressed(e); });
