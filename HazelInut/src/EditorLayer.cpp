@@ -21,7 +21,7 @@ namespace Hazel {
 	{
 		m_checkerboardTexture = Hazel::Texture2D::create("assets/textures/Checkerboard.png");
 
-		Hazel::FramebufferSpecification fbSpec(1280, 720);
+		Hazel::Framebuffer::Specification fbSpec(1280, 720);
 		m_framebuffer = Hazel::Framebuffer::create(fbSpec);
 
 		m_activeScene = std::make_shared<Hazel::Scene>();
@@ -80,7 +80,7 @@ namespace Hazel {
 	void EditorLayer::onUpdate(Hazel::Timestep ts)
 	{
 		// Resize
-		if (Hazel::FramebufferSpecification spec = m_framebuffer->getSpecification();
+		if (auto spec = m_framebuffer->getSpecification();
 			m_viewportSize.x > 0.0f && m_viewportSize.y > 0.0f && // zero sized framebuffer is invalid
 			(spec.width != m_viewportSize.x || spec.height != m_viewportSize.y)) {
 			m_framebuffer->resize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);

@@ -4,7 +4,7 @@
 #include "Platform/OpenGL/OpenGLFramebuffer.h"
 
 namespace Hazel {
-	std::shared_ptr<Framebuffer> Framebuffer::create(const FramebufferSpecification& spec)
+	std::shared_ptr<Framebuffer> Framebuffer::create(const Specification& spec)
 	{
 		switch (Renderer::getAPI())
 		{
