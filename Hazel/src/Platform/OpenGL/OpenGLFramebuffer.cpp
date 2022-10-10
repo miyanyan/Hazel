@@ -7,6 +7,16 @@
 
 namespace Hazel {
 
+	static GLenum getGLFormat(Framebuffer::ColorTextureFormat format)
+	{
+		switch (format)
+		{
+		case Hazel::Framebuffer::ColorTextureFormat::RGBA8: return GL_RGBA8;
+		case Hazel::Framebuffer::ColorTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
+		}
+		return 0;
+	}
+
 	OpenGLFramebuffer::OpenGLFramebuffer(const Specification& spec)
 		: m_specification(spec)
 		, m_framebufferId(0)
@@ -39,18 +49,19 @@ namespace Hazel {
 			createTextures(multisampled, m_colorAttachments.data(), size);
 
 			for (size_t i = 0; i < size; ++i) {
-				bool valid = false;
+				if (colorFormat[i] == ColorTextureFormat::None) continue;
+
 				uint32_t glformat = 0;
 
 				switch (colorFormat[i])
 				{
 				case ColorTextureFormat::RGBA8:
-					valid = true;
 					glformat = GL_RGBA8;
 					break;
+				case ColorTextureFormat::RED_INTEGER:
+					glformat = GL_R32I;
+					break;
 				}
-
-				if (!valid) continue;
 
 				attachTexture(m_colorAttachments[i], m_specification.samples, glformat, GL_COLOR_ATTACHMENT0 + i, m_specification.width, m_specification.height);
 			}
@@ -61,13 +72,11 @@ namespace Hazel {
 		if (depthFormat != DepthTextureFormat::None) {
 			createTextures(multisampled, &m_depthAttachment, 1);
 
-			bool valid = false;
 			uint32_t glformat = 0;
 
 			switch (depthFormat)
 			{
 			case DepthTextureFormat::DEPTH24STENCIL8:
-				valid = true;
 				glformat = GL_DEPTH24_STENCIL8;
 				break;
 			}
@@ -80,11 +89,11 @@ namespace Hazel {
 			for (size_t i = 0; i < m_colorAttachments.size(); ++i) {
 				buffers[i] = GL_COLOR_ATTACHMENT0 + i;
 			}
-			glNamedFramebufferDrawBuffers(m_framebufferId, m_colorAttachments.size(), buffers.data());
+			CHECK_GL(glNamedFramebufferDrawBuffers(m_framebufferId, m_colorAttachments.size(), buffers.data()));
 		}
 		else if (m_colorAttachments.empty()) {
 			// only depth pass
-			glNamedFramebufferDrawBuffer(m_framebufferId, GL_NONE);
+			CHECK_GL(glNamedFramebufferDrawBuffer(m_framebufferId, GL_NONE));
 		}
 
 		if (glCheckNamedFramebufferStatus(m_framebufferId, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
@@ -141,6 +150,21 @@ namespace Hazel {
 		m_specification.height = height;
 
 		invalidate();
+	}
+
+	int OpenGLFramebuffer::readPixel(uint32_t attachmentIndex, uint32_t x, uint32_t y)
+	{
+		glNamedFramebufferReadBuffer(m_framebufferId, GL_COLOR_ATTACHMENT0 + attachmentIndex);
+		int pixelData;
+		glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);
+		return pixelData;
+	}
+
+	void OpenGLFramebuffer::clearAttachment(uint32_t attachmentIndex, int value)
+	{
+		auto& format = m_specification.colorAttachmentFormat[attachmentIndex];
+
+		glClearTexImage(m_colorAttachments[attachmentIndex], 0, getGLFormat(format), GL_INT, &value);
 	}
 
 	uint32_t OpenGLFramebuffer::getColorAttachmentRendererId(uint32_t index) const

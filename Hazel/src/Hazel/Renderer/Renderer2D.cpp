@@ -17,15 +17,8 @@ namespace Hazel {
 		float texIndex;
 		float tilingFactor;
 
-		QuadVertex() = default;
-		QuadVertex(const glm::vec3& position, const glm::vec4& color, const glm::vec2& texCoord, float texIndex, float tilingFactor)
-			: position(position)
-			, color(color)
-			, texCoord(texCoord)
-			, texIndex(texIndex)
-			, tilingFactor(tilingFactor)
-		{
-		}
+		// editor only
+		int entityID;
 	};
 
 	struct Renderer2DStorage
@@ -76,11 +69,12 @@ namespace Hazel {
 		s_data.quadVertexBuffer = Hazel::VertexBuffer::create();
 		s_data.quadVertexBuffer->allocate(s_data.quadVertexBuffers.data(), s_data.quadVertexBuffers.size() * sizeof(QuadVertex), GL_DYNAMIC_DRAW);
 		s_data.quadVertexBuffer->setLayout({
-			{ Hazel::ShaderDataType::Float3, "a_position" },
-			{ Hazel::ShaderDataType::Float4, "a_color" },
-			{ Hazel::ShaderDataType::Float2, "a_texCoord" },
-			{ Hazel::ShaderDataType::Float, "a_texIndex" },
-			{ Hazel::ShaderDataType::Float, "a_tilingFactor" }
+			{ ShaderDataType::Float3, "a_position" },
+			{ ShaderDataType::Float4, "a_color" },
+			{ ShaderDataType::Float2, "a_texCoord" },
+			{ ShaderDataType::Float, "a_texIndex" },
+			{ ShaderDataType::Float, "a_tilingFactor" },
+			{ ShaderDataType::Int, "a_EntityID" }
 		});
 		s_data.quadVertexArray->addVertexBuffer(s_data.quadVertexBuffer);
 
@@ -207,7 +201,7 @@ namespace Hazel {
 		drawQuad(transform, texture, tilingFactor, tintcolor);
 	}
 
-	void Renderer2D::drawQuad(const glm::mat4& transform, const glm::vec4& color)
+	void Renderer2D::drawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID)
 	{
 		if (s_data.quadIndexCount >= Renderer2DStorage::maxIndices)
 			nextBatch();
@@ -223,6 +217,7 @@ namespace Hazel {
 			s_data.quadVertexBufferPtr->texCoord = textureCoords[i];
 			s_data.quadVertexBufferPtr->texIndex = texIndex;
 			s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
+			s_data.quadVertexBufferPtr->entityID = entityID;
 			s_data.quadVertexBufferPtr++;
 		}
 
@@ -231,7 +226,7 @@ namespace Hazel {
 		s_data.stats.quadCount++;
 	}
 
-	void Renderer2D::drawQuad(const glm::mat4& transform, const std::shared_ptr<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::drawQuad(const glm::mat4& transform, const std::shared_ptr<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
 	{
 		if (s_data.quadIndexCount >= Renderer2DStorage::maxIndices)
 			nextBatch();
@@ -262,6 +257,7 @@ namespace Hazel {
 			s_data.quadVertexBufferPtr->texCoord = textureCoords[i];
 			s_data.quadVertexBufferPtr->texIndex = textureIndex;
 			s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
+			s_data.quadVertexBufferPtr->entityID = entityID;
 			s_data.quadVertexBufferPtr++;
 		}
 
@@ -296,6 +292,11 @@ namespace Hazel {
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
 		drawQuad(transform, texture, tilingFactor, tintcolor);
+	}
+
+	void Renderer2D::drawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
+	{
+		drawQuad(transform, src.color, entityID);
 	}
 
 	void Renderer2D::resetStats()

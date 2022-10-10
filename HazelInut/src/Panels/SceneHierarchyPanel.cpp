@@ -50,6 +50,16 @@ namespace Hazel {
 		ImGui::End();
 	}
 
+	Entity SceneHierarchyPanel::getSelectedEntity() const
+	{
+		return m_selectionContext;
+	}
+
+	void SceneHierarchyPanel::setSelectedEntity(Entity entity)
+	{ 
+		m_selectionContext = entity; 
+	}
+
 	void SceneHierarchyPanel::drawEntityNode(Entity& entity)
 	{
 		auto& tag = entity.getComponent<TagComponent>().tag;

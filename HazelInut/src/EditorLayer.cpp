@@ -22,6 +22,7 @@ namespace Hazel {
 		m_checkerboardTexture = Hazel::Texture2D::create("assets/textures/Checkerboard.png");
 
 		Hazel::Framebuffer::Specification fbSpec(1280, 720);
+		fbSpec.colorAttachmentFormat = { Framebuffer::ColorTextureFormat::RGBA8, Framebuffer::ColorTextureFormat::RED_INTEGER };
 		m_framebuffer = Hazel::Framebuffer::create(fbSpec);
 
 		m_activeScene = std::make_shared<Hazel::Scene>();
@@ -89,9 +90,6 @@ namespace Hazel {
 			m_activeScene->onViewResize(m_viewportSize.x, m_viewportSize.y);
 		}
 
-		static float rotation = 0.0f;
-		rotation += ts * 50.0f;
-
 		Hazel::Timer timer;
 		// Update
 		if (m_viewportFocused) {
@@ -109,8 +107,26 @@ namespace Hazel {
 		m_profileResults.emplace_back(std::string("Renderer Prep:"), timer.elapsed<std::chrono::microseconds>());
 		timer.reset();
 
+		// entity now is at index 1, clear it to -1
+		m_framebuffer->clearAttachment(1, -1);
+
 		// scene
 		m_activeScene->onUpdateEditor(ts, m_editorCamera);
+
+		auto [mx, my] = ImGui::GetMousePos();
+		mx -= m_viewportBounds[0].x;
+		my -= m_viewportBounds[0].y;
+		glm::vec2 viewportSize = m_viewportBounds[1] - m_viewportBounds[0];
+		my = viewportSize.y - my;
+		int mouseX = (int)mx;
+		int mouseY = (int)my;
+
+		if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+		{
+			int pixelData = m_framebuffer->readPixel(1, mouseX, mouseY);
+			if (pixelData != -1)
+				m_hoverEntity = pixelData == -1 ? Entity() : Entity(static_cast<entt::entity>(pixelData), m_activeScene.get());
+		}
 
 		m_framebuffer->unbind();
 		m_profileResults.emplace_back(std::string("Renderer Draw:"), timer.elapsed<std::chrono::microseconds>());
@@ -159,11 +175,16 @@ namespace Hazel {
 
 		// DockSpace
 		ImGuiIO& io = ImGui::GetIO();
+		ImGuiStyle& style = ImGui::GetStyle();
+		float minWinSizeX = style.WindowMinSize.x;
+		style.WindowMinSize.x = 370.0f;
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 		{
 			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		}
+
+		style.WindowMinSize.x = minWinSizeX;
 
 		if (ImGui::BeginMenuBar())
 		{
@@ -196,6 +217,12 @@ namespace Hazel {
 
 		ImGui::Begin("Stats");
 
+		std::string name = "None";
+		if (m_hoverEntity) {
+			name = m_hoverEntity.getComponent<TagComponent>().tag;
+		}
+		ImGui::Text("Hover Entity : %s", name.c_str());
+
 		auto stats = Hazel::Renderer2D::getStats();
 		ImGui::Text("Renderer2D Stats:");
 		ImGui::Text("Draw Calls: %d", stats.drawCalls);
@@ -213,6 +240,11 @@ namespace Hazel {
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("Viewport");
+		auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+		auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+		auto viewportOffset = ImGui::GetWindowPos();
+		m_viewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+		m_viewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
 
 		m_viewportFocused = ImGui::IsWindowFocused;
 		m_viewportHovered = ImGui::IsWindowHovered;
@@ -224,19 +256,16 @@ namespace Hazel {
 		uint32_t textureID = m_framebuffer->getColorAttachmentRendererId();
 		ImGui::Image((void*)textureID, ImVec2{ m_viewportSize.x, m_viewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
+
 		// gizmos
 		Entity selectEntity = m_sceneHierarchyPanel.getSelectedEntity();
 		if (selectEntity && m_gizmoType != -1) {
 			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
 
-			float width = ImGui::GetWindowWidth();
-			float height = ImGui::GetWindowHeight();
-			float posx = ImGui::GetWindowPos().x;
-			float posy = ImGui::GetWindowPos().y;
-			ImGuizmo::SetRect(posx, posy, width, height);
+			ImGuizmo::SetRect(m_viewportBounds[0].x, m_viewportBounds[0].y, m_viewportBounds[1].x - m_viewportBounds[0].x, m_viewportBounds[1].y - m_viewportBounds[0].y);
 
-			// camera
+			// editor camera
 			const auto& cameraProjection = m_editorCamera.getProjection();
 			glm::mat4 cameraView = m_editorCamera.getViewMatrix();
 
@@ -276,6 +305,7 @@ namespace Hazel {
 
 		EventDispatcher dispatcher(e);
 		dispatcher.dispatch<KeyPressedEvent>([this](KeyPressedEvent& e) {return onKeyPressed(e); });
+		dispatcher.dispatch<MouseButtonPressedEvent>([this](MouseButtonPressedEvent& e) {return onMouseButtonPressed(e); });
 	}
 
 	bool EditorLayer::onKeyPressed(KeyPressedEvent& e)
@@ -310,18 +340,44 @@ namespace Hazel {
 				break;
 			}
 			case HZ_KEY_Q:
-				m_gizmoType = -1;
+			{
+				if (!ImGuizmo::IsUsing())
+					m_gizmoType = -1;
 				break;
+			}
+				
 			case HZ_KEY_W:
-				m_gizmoType = ImGuizmo::OPERATION::TRANSLATE;
+			{
+				if (!ImGuizmo::IsUsing())
+					m_gizmoType = ImGuizmo::OPERATION::TRANSLATE;
 				break;
+			}
+			
 			case HZ_KEY_E:
-				m_gizmoType = ImGuizmo::OPERATION::ROTATE;
+			{
+				if (!ImGuizmo::IsUsing())
+					m_gizmoType = ImGuizmo::OPERATION::ROTATE;
 				break;
+			}
+			
 			case HZ_KEY_R:
-				m_gizmoType = ImGuizmo::OPERATION::SCALE;
+			{
+				if (!ImGuizmo::IsUsing())
+					m_gizmoType = ImGuizmo::OPERATION::SCALE;
 				break;
+			}
+			
 		}
+	}
+
+	bool EditorLayer::onMouseButtonPressed(MouseButtonPressedEvent& e)
+	{
+		if (e.getMouseButton() == HZ_MOUSE_BUTTON_LEFT) {
+			if (m_viewportHovered && !ImGuizmo::IsOver() && !Input::isKeyPressed(HZ_KEY_LEFT_ALT)) {
+				m_sceneHierarchyPanel.setSelectedEntity(m_hoverEntity);
+			}
+		}
+		return false;
 	}
 
 	void EditorLayer::newScene()

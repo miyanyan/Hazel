@@ -4,6 +4,7 @@
 #include "Hazel/Renderer/Camera.h"
 #include "Hazel/Renderer/Texture.h"
 #include "Hazel/Renderer/EditorCamera.h"
+#include "Hazel/Scene/Components.h"
 
 namespace Hazel {
 
@@ -26,8 +27,8 @@ namespace Hazel {
 		static void drawQuad(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 		static void drawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 
-		static void drawQuad(const glm::mat4& transform, const glm::vec4& color);
-		static void drawQuad(const glm::mat4& transform, const std::shared_ptr<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
+		static void drawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID = -1);
+		static void drawQuad(const glm::mat4& transform, const std::shared_ptr<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f), int entityID = -1);
 
 		static void drawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color);
 		static void drawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color);
@@ -35,6 +36,8 @@ namespace Hazel {
 		static void drawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const std::shared_ptr<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 		static void drawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const std::shared_ptr<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 	
+		static void drawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID);
+
 		// Stats
 		struct Statistics
 		{
