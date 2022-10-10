@@ -59,7 +59,7 @@ namespace Hazel {
 
 	void ImGuiLayer::onEvent(Event& e)
 	{
-		if (m_isBlocked) {
+		if (!m_blockEvents) {
 			return;
 		}
 
@@ -97,7 +97,7 @@ namespace Hazel {
 
 	void ImGuiLayer::blockEvents(bool block)
 	{
-		m_isBlocked = block;
+		m_blockEvents = block;
 	}
 
 	void ImGuiLayer::setDarkThemeColors()

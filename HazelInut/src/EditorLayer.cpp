@@ -216,7 +216,7 @@ namespace Hazel {
 
 		m_viewportFocused = ImGui::IsWindowFocused;
 		m_viewportHovered = ImGui::IsWindowHovered;
-		Application::get().getImGuiLayer()->blockEvents(m_viewportFocused || !m_viewportHovered);
+		Application::get().getImGuiLayer()->blockEvents(!m_viewportFocused && !m_viewportHovered);
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		m_viewportSize = { viewportPanelSize.x, viewportPanelSize.y };

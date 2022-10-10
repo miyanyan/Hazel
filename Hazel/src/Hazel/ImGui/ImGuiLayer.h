@@ -28,7 +28,7 @@ namespace Hazel {
 
 	private:
 		float m_Time = 0.0f;
-		bool m_isBlocked = true;
+		bool m_blockEvents = true;
 	};
 
 }
