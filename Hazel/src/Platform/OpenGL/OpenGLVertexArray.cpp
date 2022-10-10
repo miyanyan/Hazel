@@ -61,6 +61,17 @@ namespace Hazel {
 				case ShaderDataType::Float2:
 				case ShaderDataType::Float3:
 				case ShaderDataType::Float4:
+				{
+					CHECK_GL(glEnableVertexArrayAttrib(m_vertexArrayId, m_vertexBufferIndex));
+					CHECK_GL(glVertexArrayAttribFormat(m_vertexArrayId, m_vertexBufferIndex,
+						element.getComponentCount(),
+						shaderDataTypeToOpenGLBaseType(element.type),
+						element.normalized ? GL_TRUE : GL_FALSE,
+						element.offset));
+					CHECK_GL(glVertexArrayAttribBinding(m_vertexArrayId, m_vertexBufferIndex, bindingindex));
+					m_vertexBufferIndex++;
+					break;
+				}
 				case ShaderDataType::Int:
 				case ShaderDataType::Int2:
 				case ShaderDataType::Int3:
@@ -68,10 +79,9 @@ namespace Hazel {
 				case ShaderDataType::Bool:
 				{
 					CHECK_GL(glEnableVertexArrayAttrib(m_vertexArrayId, m_vertexBufferIndex));
-					CHECK_GL(glVertexArrayAttribFormat(m_vertexArrayId, m_vertexBufferIndex,
+					CHECK_GL(glVertexArrayAttribIFormat(m_vertexArrayId, m_vertexBufferIndex,
 						element.getComponentCount(),
 						shaderDataTypeToOpenGLBaseType(element.type),
-						element.normalized ? GL_TRUE : GL_FALSE,
 						element.offset));
 					CHECK_GL(glVertexArrayAttribBinding(m_vertexArrayId, m_vertexBufferIndex, bindingindex));
 					m_vertexBufferIndex++;
